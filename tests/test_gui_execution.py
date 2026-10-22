@@ -41,7 +41,7 @@ class GtkExecutionTests(unittest.TestCase):
         seen=[]
         def cancel(dialog):
             seen.append(dialog)
-            self.assertEqual(dialog.get_title(),'Remove selected software?')
+            self.assertEqual(dialog.get_title(),'Remove Selected Software?')
             self.assertTrue(dialog.get_widget_for_response(self.Gtk.ResponseType.ACCEPT).get_style_context().has_class('destructive-action'))
             dialog.response(self.Gtk.ResponseType.CANCEL)
         self.auto_dialog(cancel);self.window.start_cleanup();self.settle()
@@ -60,12 +60,12 @@ class GtkExecutionTests(unittest.TestCase):
             dialog=self.window.active_dialog
             if dialog:
                 seen.append(dialog.get_title())
-                dialog.response(self.Gtk.ResponseType.ACCEPT if dialog.get_title()=='Remove selected software?' else self.Gtk.ResponseType.CLOSE)
+                dialog.response(self.Gtk.ResponseType.ACCEPT if dialog.get_title()=='Remove Selected Software?' else self.Gtk.ResponseType.CLOSE)
             return True
         source=self.GLib.timeout_add(10,respond)
         self.window.start_cleanup()
         self.assertFalse(self.window.remove_button.get_sensitive())
-        self.settle(lambda:'Cleanup complete' in seen and not self.window.busy)
+        self.settle(lambda:'Cleanup Complete' in seen and not self.window.busy)
         self.GLib.source_remove(source)
         self.assertEqual(self.fixture.execute_mock.call_count,1)
         self.assertTrue(all(t!=threading.get_ident() for t in worker_threads))
@@ -105,7 +105,7 @@ class GtkExecutionTests(unittest.TestCase):
             self.assertEqual(window.get_title(),'Package Cleaner')
             self.assertEqual(window.content_stack.get_visible_child_name(),'about')
             labels=[child.get_text() for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)]
-            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.2'])
+            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.3'])
             self.assertEqual(window.about_page.get_halign(),self.Gtk.Align.CENTER)
             self.assertEqual(window.about_page.get_valign(),self.Gtk.Align.CENTER)
             self.assertTrue(all(child.get_xalign()==0.5 for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)))

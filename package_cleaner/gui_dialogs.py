@@ -25,12 +25,12 @@ class Dialogs:
     def confirmation_dialog(self, proposal):
         from gi.repository import Gtk
         plan = proposal.plan
-        dialog = Gtk.Dialog(title='Remove selected software?', transient_for=self, modal=True)
+        dialog = Gtk.Dialog(title='Remove Selected Software?', transient_for=self, modal=True)
         dialog.set_default_size(620, 440)
         dialog.add_button('Cancel', Gtk.ResponseType.CANCEL)
         remove = dialog.add_button('Remove', Gtk.ResponseType.ACCEPT)
         remove.get_style_context().add_class('destructive-action')
-        remove.set_tooltip_text('Uninstall the software listed in this transaction')
+        remove.set_tooltip_text('Uninstall the Software Listed in This Transaction')
         dialog.set_default_response(Gtk.ResponseType.CANCEL)
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

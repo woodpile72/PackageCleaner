@@ -34,7 +34,7 @@ class NativeIconsTests(unittest.TestCase):
             if name:
                 self.assertTrue(theme.has_icon(name))
                 self.assertEqual(themed_image(role).get_pixel_size(),16)
-        button=Gtk.Button(label='Keep permanently')
+        button=Gtk.Button(label='Keep Permanently')
         decorate_button(button,'keep')
-        self.assertEqual(button.get_label(),'Keep permanently')
+        self.assertEqual(button.get_label(),'Keep Permanently')
         self.assertTrue(button.get_always_show_image())

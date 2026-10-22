@@ -96,12 +96,20 @@ def Window(application, service):
             sidebar.set_size_request(220, -1)
             self.category = CategoryList(selection_mode=Gtk.SelectionMode.SINGLE)
             self.category.get_accessible().set_name('Cleanup categories')
-            for key, name in CATEGORIES.items():
+            # GNOME header capitalization for navigation; core/CLI labels stay unchanged.
+            category_titles = {
+                'large': 'Large Applications',
+                'potential': 'Potentially Unused Applications',
+                'servers': 'Servers and Development Tools',
+                'support': 'Unneeded Supporting Packages',
+                'advanced': 'System Tools and Background Components',
+            }
+            for key in CATEGORIES:
                 if key == 'search':
                     continue
                 row = Gtk.ListBoxRow()
                 row.category_id = key
-                label = Gtk.Label(label=name, xalign=0, wrap=True, width_chars=1,
+                label = Gtk.Label(label=category_titles[key], xalign=0, wrap=True, width_chars=1,
                                   max_width_chars=24)
                 label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
                 category_content = Gtk.Box(spacing=8, margin=12)
@@ -140,7 +148,7 @@ def Window(application, service):
             self.paned.set_position(220)
             self.controls = Gtk.Box(spacing=12)
             title = self.heading = Gtk.Label(xalign=0, wrap=True, width_chars=1, max_width_chars=36)
-            title.set_markup('<big><b>Review your installed applications</b></big>')
+            title.set_markup('<big><b>Review Installed Applications</b></big>')
             self.controls.pack_start(title, True, True, 0)
             self.search = Gtk.SearchEntry(placeholder_text='Search applications', width_chars=20)
             self.search.set_max_width_chars(20)
@@ -196,7 +204,7 @@ def Window(application, service):
             root.pack_start(self.progress_area, False, False, 0)
             self.cancel_button = Gtk.Button(label='Cancel')
             decorate_button(self.cancel_button, 'cancel')
-            self.cancel_button.set_tooltip_text('Cancel current check')
+            self.cancel_button.set_tooltip_text('Cancel Current Check')
             self.cancel_button.set_sensitive(False)
             self.cancel_button.connect('clicked', lambda _: self.cancellation.cancel())
             self.spinner = Gtk.Spinner()
@@ -223,14 +231,14 @@ def Window(application, service):
             queue_actions = Gtk.Box(spacing=8)
             self.selection_label = Gtk.Label(xalign=0, wrap=True, width_chars=1, max_width_chars=25)
             footer.pack_start(self.selection_label, True, True, 0)
-            self.preview_button = Gtk.Button(label='Review cleanup queue')
+            self.preview_button = Gtk.Button(label='Review Cleanup Queue')
             self.preview_button.connect('clicked', lambda _: self.perform('Validating the removal queue…', service.validate, self.show_preview))
             queue_actions.pack_start(self.preview_button, False, False, 0)
-            self.remove_button = Gtk.Button(label='Remove selected software')
-            self.remove_button.set_tooltip_text('Validate and review the queue before confirming removal')
+            self.remove_button = Gtk.Button(label='Remove Selected Software')
+            self.remove_button.set_tooltip_text('Validate and Review the Queue Before Confirming Removal')
             self.remove_button.connect('clicked', self.start_cleanup)
             queue_actions.pack_start(self.remove_button, False, False, 0)
-            self.clear_button = Gtk.Button(label='Clear queue')
+            self.clear_button = Gtk.Button(label='Clear Queue')
             self.clear_button.connect('clicked', self.clear_selection)
             queue_actions.pack_start(self.clear_button, False, False, 0)
             footer.pack_start(queue_actions, False, False, 0)
@@ -272,8 +280,8 @@ def Window(application, service):
             dialog = Gtk.MessageDialog(transient_for=self, modal=True, message_type=Gtk.MessageType.INFO,
                                        text='Removal is still in progress.')
             dialog.format_secondary_text('Verification must finish before closing. You can hide this window; it will reopen with the result. Completed removals are not rolled back.')
-            dialog.add_button('Keep open', Gtk.ResponseType.CANCEL)
-            dialog.add_button('Finish in background', Gtk.ResponseType.OK)
+            dialog.add_button('Keep Open', Gtk.ResponseType.CANCEL)
+            dialog.add_button('Finish in Background', Gtk.ResponseType.OK)
             response = dialog.run()
             dialog.destroy()
             if response == Gtk.ResponseType.OK:
@@ -305,7 +313,7 @@ def Window(application, service):
             self.cancel_button.set_sensitive(can_cancel)
             self.progress_area.show()
             self.cancel_button.set_visible(can_cancel)
-            self.cancel_button.set_tooltip_text('Request cancellation; completed removals cannot be rolled back' if execution else 'Cancel current check')
+            self.cancel_button.set_tooltip_text('Request cancellation; completed removals cannot be rolled back' if execution else 'Cancel Current Check')
             self.category.set_sensitive(False)
             self.about_button.set_sensitive(False)
             self.refresh.set_sensitive(False)
@@ -384,7 +392,7 @@ def Window(application, service):
                         self.session_error = 'Further removal stopped: ' + str(exc)
                         self.execution_results()
                     else:
-                        self.message('Removal stopped' if execution else 'Review could not be completed', str(exc))
+                        self.message('Removal Stopped' if execution else 'Review Could Not Be Completed', str(exc))
                 else:
                     done(value)
                 return False
@@ -410,7 +418,7 @@ def Window(application, service):
             self.search_now()
             if warnings:
                 self.status.set_text(self.status.get_text() + ' Some information was unavailable.')
-                self.message('Scan observations', '\n'.join(warnings))
+                self.message('Scan Observations', '\n'.join(warnings))
 
         def source_changed(self, *_):
             self.component_page = 0
@@ -422,7 +430,7 @@ def Window(application, service):
             self.render(self.items)
             count = len(self.items)
             category = self.view_category()
-            self.heading.set_markup('<big><b>' + ('Search results' if category == 'search' else 'Review your installed applications') + '</b></big>')
+            self.heading.set_markup('<big><b>' + ('Search Results' if category == 'search' else 'Review Installed Applications') + '</b></big>')
             if category == 'search':
                 summary = f'Search results · {count} found.'
             elif category == 'advanced':
@@ -510,13 +518,13 @@ def Window(application, service):
                 actions = Gtk.Box(spacing=8)
                 for label, callback in (
                     ('Details', lambda _, i=item: self.details(i)),
-                    ('Keep permanently', lambda _, i=item: self.perform('Saving your Keep choice…', lambda: service.keep(i.package), lambda value: self.after_keep(i))),
-                    ('Queue removal', lambda _, i=item: self.perform('Updating the removal queue…', lambda: service.select(i.package), lambda value: self.after_queue(i)))):
+                    ('Keep Permanently', lambda _, i=item: self.perform('Saving your Keep choice…', lambda: service.keep(i.package), lambda value: self.after_keep(i))),
+                    ('Queue Removal', lambda _, i=item: self.perform('Updating the removal queue…', lambda: service.select(i.package), lambda value: self.after_queue(i)))):
                     button = Gtk.Button(label=label)
-                    decorate_button(button, {'Details': 'details', 'Keep permanently': 'keep', 'Queue removal': 'queue'}[label])
-                    if label == 'Queue removal':
+                    decorate_button(button, {'Details': 'details', 'Keep Permanently': 'keep', 'Queue Removal': 'queue'}[label])
+                    if label == 'Queue Removal':
                         button.set_sensitive(not item.protected)
-                        button.set_tooltip_text('Save your intention to remove this application. Review cleanup queue validates the proposed transaction; queuing never authorizes execution.')
+                        button.set_tooltip_text('Save your intention to remove this application. Review Cleanup Queue validates the proposed transaction; queuing never authorizes execution.')
                     button.connect('clicked', callback)
                     actions.pack_start(button, False, False, 0)
                 text.pack_start(actions, False, False, 0)
@@ -528,7 +536,7 @@ def Window(application, service):
             self.rows.show_all()
 
         def after_queue(self, item):
-            self.status.set_text(item.title + ': Queued for removal. Review cleanup queue to validate the proposal.')
+            self.status.set_text(item.title + ': Queued for removal. Choose Review Cleanup Queue to validate the proposal.')
             self.render(self.items)
 
         def after_keep(self, item):
@@ -579,18 +587,18 @@ def Window(application, service):
                     lines.append('This weak timestamp can reflect reads or backups, not execution.')
                 else:
                     lines.append('Recorded requests may be automated; this is not a human last-use date.')
-            self.message('Application details', '\n\n'.join(lines))
+            self.message('Application Details', '\n\n'.join(lines))
 
         def show_preview(self, preview):
             self.update_selection()
             prefix = 'Removal blocked: ' if preview.plan.blocked else 'Removal unavailable: '
             unavailable = (prefix + '; '.join(preview.unavailable_reasons)) if preview.unavailable_reasons else 'No removals proposed.'
             self.status.set_text(unavailable if not preview.ready else 'Removal queue validated for review. Execution has not been authorized.')
-            dialog = Gtk.Dialog(title='Removal queue', transient_for=self, modal=True)
+            dialog = Gtk.Dialog(title='Removal Queue', transient_for=self, modal=True)
             dialog.set_default_size(650, 520)
-            dialog.add_button('Back to review', Gtk.ResponseType.CANCEL)
+            dialog.add_button('Back to Review', Gtk.ResponseType.CANCEL)
             if preview.ready:
-                dialog.add_button('Remove selected software…', Gtk.ResponseType.ACCEPT)
+                dialog.add_button('Remove Selected Software…', Gtk.ResponseType.ACCEPT)
             outer = Gtk.ScrolledWindow()
             outer.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
             dialog.get_content_area().pack_start(outer, True, True, 0)
@@ -617,7 +625,7 @@ def Window(application, service):
                     summary_row.pack_start(warning_icon, False, False, 0)
             summary_row.pack_start(label, True, True, 0)
             box.pack_start(summary_row, False, False, 0)
-            expander = Gtk.Expander(label='Details: complete package list and safety findings')
+            expander = Gtk.Expander(label='Details: Complete Package List and Safety Findings')
             scroll = Gtk.ScrolledWindow()
             scroll.set_min_content_height(160)
             details = '\n'.join(preview.unavailable_reasons + preview.warnings)
@@ -631,7 +639,7 @@ def Window(application, service):
             expander.add(scroll)
             box.pack_start(expander, True, True, 0)
             for name in sorted(service.selected):
-                button = Gtk.Button(label='Remove from queue: ' + (describe(service.packages[name])[0] if name in service.packages else 'Application no longer installed'))
+                button = Gtk.Button(label='Remove From Queue: ' + (describe(service.packages[name])[0] if name in service.packages else 'Application no longer installed'))
                 def remove(_, n=name):
                     dialog.response(Gtk.ResponseType.CANCEL)
                     self.perform('Updating the removal queue…', lambda: service.unstage(n), lambda value: self.queue_updated('Removal queue updated. Review it again to validate the changes.'))
@@ -685,9 +693,9 @@ def Window(application, service):
             outcomes = list(self.outcomes)
             all_complete = all(o.result.completed for o in outcomes)
             unknown = any(o.result.get('status') == 'unknown' or not o.result.get('helper_verified') for o in outcomes)
-            title = 'Cleanup complete' if all_complete and not service.selected else 'Removal results'
+            title = 'Cleanup Complete' if all_complete and not service.selected else 'Removal Results'
             if unknown:
-                title = 'Verification incomplete — reconciliation required'
+                title = 'Verification Incomplete — Reconciliation Required'
             lines = [self.session_error] if self.session_error else []
             technical = []
             for o in outcomes:
@@ -714,7 +722,7 @@ def Window(application, service):
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=12,margin=16)
             scroll.add(box);dialog.get_content_area().pack_start(scroll,True,True,0)
             box.pack_start(Gtk.Label(label='\n\n'.join(lines),xalign=0,wrap=True,max_width_chars=65),False,False,0)
-            details = Gtk.Expander(label='Details and execution logs')
+            details = Gtk.Expander(label='Details and Execution Logs')
             details.add(Gtk.Label(label='\n\n'.join(technical),xalign=0,wrap=True,selectable=True,max_width_chars=65))
             box.pack_start(details,False,False,0)
             self.active_dialog = dialog

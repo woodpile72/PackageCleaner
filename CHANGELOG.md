@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 — pre-release
+
+- Correct GTK capitalization to GNOME HIG: header capitalization for buttons, navigation, and titles; sentence capitalization for field labels and explanatory text.
+- Preserve all discovery, queue, validation, and execution behavior.
+
 ## 0.1.2 — pre-release
 
 - Use consistent sentence case for GTK and CLI action labels.

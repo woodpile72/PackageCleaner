@@ -180,7 +180,7 @@ class GtkTests(ReviewServiceTests):
                     window.component_filter.set_active_id('all')
                     row=next(r for r in window.rows.get_children() if r.package_id=='protected')
                     actions=row.get_child().get_children()[1].get_children()[-1].get_children()
-                    self.assertFalse(next(b for b in actions if b.get_label()=='Queue removal').get_sensitive())
+                    self.assertFalse(next(b for b in actions if b.get_label()=='Queue Removal').get_sensitive())
                     window.search.set_text('tool')
                     self.assertFalse(window.component_controls.get_visible())
                     window.search.set_text('')
@@ -321,7 +321,7 @@ class GtkTests(ReviewServiceTests):
                 drain(window)
                 self.assertEqual(discover.call_count,calls_before)
                 self.assertEqual(window.category.get_active_id(),'large')
-                self.assertEqual(window.heading.get_text(),'Search results')
+                self.assertEqual(window.heading.get_text(),'Search Results')
                 self.assertIn('1 found', window.status.get_text())
                 window.search.set_text('')
                 self.assertEqual([i.package for i in window.items],['app:amd64'])
@@ -331,7 +331,7 @@ class GtkTests(ReviewServiceTests):
                 window.search.set_text(protected.name)
                 self.assertTrue(window.items[0].protected)
                 protected_actions = window.rows.get_children()[0].get_child().get_children()[1].get_children()[-1].get_children()
-                self.assertFalse(next(b for b in protected_actions if b.get_label() == 'Queue removal').get_sensitive())
+                self.assertFalse(next(b for b in protected_actions if b.get_label() == 'Queue Removal').get_sensitive())
                 window.search.set_text('')
                 self.assertEqual(discover.call_count,calls_before)
                 window.details(self.item)
@@ -340,14 +340,23 @@ class GtkTests(ReviewServiceTests):
                     if isinstance(widget, Gtk.Container):
                         for child in widget.get_children():
                             yield from descendants(child)
-                queue = next(w for w in descendants(window) if isinstance(w, Gtk.Button) and w.get_label() == 'Queue removal')
-                self.assertEqual(queue.get_accessible().get_name(), 'Queue removal')
+                queue = next(w for w in descendants(window) if isinstance(w, Gtk.Button) and w.get_label() == 'Queue Removal')
+                self.assertEqual(queue.get_accessible().get_name(), 'Queue Removal')
                 self.assertIn('never authorizes execution', queue.get_tooltip_text())
                 queue.clicked()
                 drain(window)
                 simulation.assert_not_called()
                 self.assertIn('Queued for removal', window.status.get_text())
-                self.assertEqual(window.preview_button.get_label(), 'Review cleanup queue')
+                self.assertEqual(window.preview_button.get_label(), 'Review Cleanup Queue')
+                self.assertEqual(window.remove_button.get_label(), 'Remove Selected Software')
+                self.assertEqual(window.clear_button.get_label(), 'Clear Queue')
+                labels = [w.get_text() for w in descendants(window) if isinstance(w, Gtk.Label)]
+                for title in ('Large Applications', 'Potentially Unused Applications',
+                              'Servers and Development Tools', 'Unneeded Supporting Packages',
+                              'System Tools and Background Components', 'Sort by'):
+                    self.assertIn(title, labels)
+                self.assertIn('applications queued for removal', window.selection_label.get_text())
+                self.assertEqual(window.search.get_placeholder_text(), 'Search applications')
                 window.preview_button.clicked()
                 drain(window)
                 simulation.assert_called_once()

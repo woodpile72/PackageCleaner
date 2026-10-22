@@ -53,7 +53,7 @@ class DebianPackageTests(unittest.TestCase):
                 script=root/'usr/bin'/name
                 self.assertEqual(script.stat().st_mode & 0o7777,0o755)
                 self.assertIn('/usr/share/package-cleaner',script.read_text())
-            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__=='0.1.2';assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
+            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__=='0.1.3';assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
             result=subprocess.run(['/usr/bin/python3','-I','-c',code,str(root/'usr/share/package-cleaner')],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertIn('usage:',result.stdout)

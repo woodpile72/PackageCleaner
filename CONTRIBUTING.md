@@ -41,13 +41,13 @@ Do not commit `work/`, generated inventories, runtime logs, private configuratio
 
 ## Building the Debian installer
 
-`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.2_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
+`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.3_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
 
-Run `lintian dist/package-cleaner_0.1.2_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.
+Run `lintian dist/package-cleaner_0.1.3_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.
 
 Generate the public screenshot with `/usr/bin/python3 tools/demo_screenshot.py` in a GTK session. It uses fabricated inventory and blocks execution, never host discovery. When building a source archive without Git history, timestamps fall back to the newest packaging changelog date. Flatpak bindings are recommended, not mandatory; missing Flatpak support leaves APT discovery available.
 
-`tools/check_deb_isolated.py dist/package-cleaner_0.1.2_all.deb` is an opt-in local packaging check requiring user namespaces and bubblewrap. It never modifies the host package database. It uses `--force-depends` in an otherwise empty temporary dpkg root, then read-only host runtime mounts; dependency metadata must also be checked with APT simulation. Its live preview targets an already installed Package Cleaner. It is not part of CI and is not a substitute for a fresh Mint VM trial.
+`tools/check_deb_isolated.py dist/package-cleaner_0.1.3_all.deb` is an opt-in local packaging check requiring user namespaces and bubblewrap. It never modifies the host package database. It uses `--force-depends` in an otherwise empty temporary dpkg root, then read-only host runtime mounts; dependency metadata must also be checked with APT simulation. Its live preview targets an already installed Package Cleaner. It is not part of CI and is not a substitute for a fresh Mint VM trial.
 
 To check an upgrade in the same disposable environment, add
 `--upgrade-from dist/package-cleaner_0.1.0_all.deb`. This verifies the old version
