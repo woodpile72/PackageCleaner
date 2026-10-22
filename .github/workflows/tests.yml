@@ -26,10 +26,10 @@ jobs:
         run: |
           set -euo pipefail
           /usr/bin/python3 packaging/build_deb.py
-          # Intentional fixed upgrade fixture: last published release before 0.2.0.
+          # Intentional fixed upgrade fixture: last published release before 0.2.4.
           previous="$RUNNER_TEMP/package-cleaner-previous"
           mkdir -p "$previous"
-          git archive v0.1.4 | tar -x -C "$previous"
+          git archive v0.2.0 | tar -x -C "$previous"
           /usr/bin/python3 "$previous/packaging/build_deb.py"
       - name: Validate release artifact and isolated install/upgrade
         shell: bash
@@ -38,4 +38,4 @@ jobs:
           version=$(/usr/bin/python3 -c 'from package_cleaner import __version__; print(__version__)')
           # Root is only for namespace creation on Ubuntu's restricted CI runner.
           # dpkg always targets a temporary root; no app is installed on the runner.
-          /usr/bin/python3 tools/validate_deb.py --privileged-isolation "dist/package-cleaner_${version}_all.deb" --upgrade-from "$RUNNER_TEMP/package-cleaner-previous/dist/package-cleaner_0.1.4_all.deb"
+          /usr/bin/python3 tools/validate_deb.py --privileged-isolation "dist/package-cleaner_${version}_all.deb" --upgrade-from "$RUNNER_TEMP/package-cleaner-previous/dist/package-cleaner_0.2.0_all.deb"

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4 — pre-release
+
+- Bound application list icons to 48 × 48 logical pixels, including oversized fixed-size theme entries such as Flowblade.
+- Preserve aspect ratio, transparency, smaller icons and HiDPI rendering, with graceful fallback for invalid icons.
+- Add regression tests for raster/vector icons, themed icons, failures and display scaling.
+- Keep all package-management and removal safeguards unchanged.
+
 ## 0.2.0 — pre-release
 
 - Remove release-version literals from packaging and GTK tests.

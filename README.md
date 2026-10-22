@@ -26,7 +26,7 @@ Written in Python, with a native GTK interface and an interactive terminal inter
 
 Developed and tested on **Linux Mint 22.3 Cinnamon**, using the system Python 3 and GTK 3. The APT backend targets the standard Debian/Ubuntu package-management layout. Other distributions, custom APT roots/configurations, and desktop environments have not been validated; Debian/Ubuntu compatibility is a design direction, not a support guarantee.
 
-Version **0.2.0** is a pre-release. A `.deb` installer and source archives are available on the [releases page](https://github.com/woodpile72/PackageCleaner/releases). There is no PyPI distribution. Do not run the GUI as root.
+Version **0.2.4** is a pre-release. A `.deb` installer and source archives are available on the [releases page](https://github.com/woodpile72/PackageCleaner/releases). There is no PyPI distribution. Do not run the GUI as root.
 
 ## Requirements
 
@@ -49,11 +49,11 @@ Graphical APT authentication currently searches for root-owned, non-writable exe
 
 ## Install the Debian package
 
-Download `package-cleaner_0.2.0_all.deb` and `SHA256SUMS` from the [v0.2.0 pre-release](https://github.com/woodpile72/PackageCleaner/releases/tag/v0.2.0). In the download directory:
+Download `package-cleaner_0.2.4_all.deb` and `SHA256SUMS` from the [v0.2.4 pre-release](https://github.com/woodpile72/PackageCleaner/releases/tag/v0.2.4). In the download directory:
 
 ```sh
 sha256sum --ignore-missing -c SHA256SUMS
-sudo apt install ./package-cleaner_0.2.0_all.deb
+sudo apt install ./package-cleaner_0.2.4_all.deb
 ```
 
 Review APT's proposed changes before confirming. The `all` architecture package contains Python and SVG assets, not native compiled code. It targets Linux Mint 22.3; installation on other Debian-derived distributions is not a compatibility guarantee.

@@ -44,9 +44,9 @@ Do not commit `work/`, generated inventories, runtime logs, private configuratio
 
 ## Building the Debian installer
 
-`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.2.0_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
+`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.2.4_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
 
-Run `lintian dist/package-cleaner_0.2.0_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded .deb and explicit source archives; GitHub also supplies automatic source downloads for the tag.
+Run `lintian dist/package-cleaner_0.2.4_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded .deb and explicit source archives; GitHub also supplies automatic source downloads for the tag.
 
 Generate the public screenshot with `/usr/bin/python3 tools/demo_screenshot.py` in a GTK session. It uses fabricated inventory and blocks execution, never host discovery. When building a source archive without Git history, timestamps fall back to the newest packaging changelog date. Flatpak bindings are recommended, not mandatory; missing Flatpak support leaves APT discovery available.
 
@@ -64,7 +64,7 @@ upgrade and temporary uninstall unchanged. No removal API is called. The empty
 test dpkg root uses --force-depends; this does not prove dependency resolution on
 a fresh Mint installation and does not replace a full VM trial.
 
-CI builds the previous release from the immutable v0.1.4 source tag as an
+CI builds the previous release from the immutable v0.2.0 source tag as an
 intentional upgrade fixture. Namespace creation runs with elevated privileges
 only on the disposable GitHub runner (Ubuntu restricts unprivileged namespaces).
 Local checks need working user namespaces; they never require installing the

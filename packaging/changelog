@@ -1,3 +1,11 @@
+package-cleaner (0.2.4) unstable; urgency=medium
+
+  * Bound GTK application list icons to 48 logical pixels.
+  * Preserve aspect ratio, alpha, small icons and HiDPI rendering.
+  * Add icon regressions and use 0.2.0 as the isolated upgrade fixture.
+
+ -- Erick Woods <17180367+woodpile72@users.noreply.github.com>  Thu, 22 Oct 2026 11:01:15 -0500
+
 package-cleaner (0.2.0) unstable; urgency=medium
 
   * Derive test version expectations from the authoritative application version.

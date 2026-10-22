@@ -12,5 +12,5 @@
   <url type="bugtracker">https://github.com/woodpile72/PackageCleaner/issues</url>
   <provides><binary>package-cleaner</binary><binary>package-cleaner-gui</binary></provides>
   <content_rating type="oars-1.1"/>
-  <releases><release version="0.2.0" date="2026-10-22" type="development"/></releases>
+  <releases><release version="0.2.4" date="2026-10-22" type="development"/><release version="0.2.0" date="2026-10-22" type="development"/></releases>
 </component>
