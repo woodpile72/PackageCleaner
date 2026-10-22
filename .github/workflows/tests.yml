@@ -16,7 +16,7 @@ jobs:
       - name: Install test dependencies on the disposable CI runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends python3-apt python3-gi gir1.2-gtk-3.0 gir1.2-flatpak-1.0 librsvg2-common xvfb xauth dbus-x11 lintian appstream bubblewrap
+          sudo apt-get install -y --no-install-recommends python3-apt python3-gi gir1.2-gtk-3.0 gir1.2-flatpak-1.0 librsvg2-common xvfb xauth dbus-x11 lintian appstream bubblewrap
       - name: Safe unit tests (mocked removal backends)
         run: /usr/bin/python3 -m unittest discover -s tests -q
       - name: Native GTK tests (mocked removal, virtual desktop)
