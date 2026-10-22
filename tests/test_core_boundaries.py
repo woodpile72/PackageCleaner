@@ -44,7 +44,7 @@ class CoreBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             package = Path(directory)/'package_cleaner'
             package.mkdir()
-            for file in ('__init__.py','gui.py','gui_icons.py','display.py'):
+            for file in ('__init__.py','gui.py','gui_icons.py','gui_dialogs.py','gui_formatting.py','display.py'):
                 shutil.copy(ROOT/'package_cleaner'/file, package/file)
             shutil.copytree(ROOT/'package_cleaner/core', package/'core', ignore=shutil.ignore_patterns('__pycache__'))
             script = '''

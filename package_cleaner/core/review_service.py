@@ -29,7 +29,19 @@ class Preview:
 
     @property
     def ready(self):
-        return bool(self.plan.removed) and not self.plan.blocked
+        return bool(self.plan.removed) and not self.unavailable_reasons
+
+
+    @property
+    def unavailable_reasons(self):
+        reasons = list(self.plan.blocked) + [w for w in self.warnings if w not in self.plan.observations]
+        for part in self.plan.provider_plans or [self.plan]:
+            reasons.extend(part.blocked)
+            if part.execution_disabled:
+                reasons.extend(part.observations or ['Execution is unavailable for this backend.'])
+        if self.plan.execution_disabled and not reasons:
+            reasons.append('Execution is unavailable for this backend.')
+        return list(dict.fromkeys(reasons))
 
 
 @dataclass

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.packagecleaner.Review</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <developer id="io.github.woodpile72"><name>Erick Woods</name></developer>
+  <name>Package Cleaner</name>
+  <summary>Review APT and Flatpak software before cleanup</summary>
+  <description><p>Explore installed applications, keep useful software, and review dependency-aware removal proposals. Cleanup requires explicit confirmation. Usage clues are imperfect and removal has inherent risks.</p></description>
+  <launchable type="desktop-id">org.packagecleaner.Review.desktop</launchable>
+  <url type="homepage">https://github.com/woodpile72/PackageCleaner</url>
+  <url type="bugtracker">https://github.com/woodpile72/PackageCleaner/issues</url>
+  <provides><binary>package-cleaner</binary><binary>package-cleaner-gui</binary></provides>
+  <content_rating type="oars-1.1"/>
+</component>

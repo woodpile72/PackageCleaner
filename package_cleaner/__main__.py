@@ -23,7 +23,7 @@ def confirm_clear():
 
 
 def _main():
-    parser = argparse.ArgumentParser(description='Mint / Debian APT package review; removal requires explicit opt-in and confirmation.')
+    parser = argparse.ArgumentParser(description='Review APT and Flatpak software on Linux Mint: inspect, queue and preview changes; CLI execution requires --enable-removal and exact REMOVE confirmation.')
     parser.add_argument('--enable-removal', action='store_true', help='Offer explicitly confirmed execution after final validation.')
     parser.add_argument('--log', help='Append review and simulation events to this JSONL file (opt-in local write).')
     parser.add_argument('--preferences', help='Path for saved Keep preferences (default: XDG configuration directory).')

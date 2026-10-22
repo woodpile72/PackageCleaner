@@ -10,18 +10,13 @@ from .core.review_service import ReviewService
 from .core.cleanup import CleanupSession, Proposal
 from .core.recommendations import CATEGORIES, inactivity_assessment, describe
 from .display import local_date, installation_label
+from .gui_dialogs import Dialogs
+from .gui_formatting import readable_size
 from .gui_icons import themed_image, decorate_button, icon_name, application_pixbuf, ICON_SIZES
 from .core.footprint import LARGE_DESCRIPTION
 from .core.classification import FILTERS, filter_components
 from .core.providers import filter_sources
 from .core.sorting import DEFAULTS, sort_options, sort_applications, observed_activity
-
-
-def readable_size(value):
-    for unit in ('B', 'KB', 'MB', 'GB', 'TB'):
-        if value < 1024 or unit == 'TB':
-            return f'{value:.1f} {unit}'
-        value /= 1024
 
 
 def last_use_label(item):
@@ -68,7 +63,7 @@ def Window(application, service):
                     self.select_row(row)
                     return
 
-    class ReviewWindow(Gtk.ApplicationWindow):
+    class ReviewWindow(Dialogs, Gtk.ApplicationWindow):
         def __init__(self):
             super().__init__(application=application, title='Package Cleaner')
             self.set_icon_list([application_pixbuf(size) for size in ICON_SIZES])
@@ -298,7 +293,8 @@ def Window(application, service):
             self.selection_label.set_text(f'{len(service.selected)} applications queued for removal')
             self.preview_button.set_sensitive(bool(service.selected) and not self.busy)
             self.clear_button.set_sensitive(bool(service.selected) and not self.busy)
-            self.remove_button.set_sensitive(bool(service.selected) and not self.busy)
+            self.remove_button.set_sensitive(bool(service.selected) and not self.busy and
+                                             (service.preview is None or service.preview.ready))
 
         def perform(self, message, work, done, *, execution=False, can_cancel=True):
             if self.busy:
@@ -543,19 +539,6 @@ def Window(application, service):
             self.configure_sort()
             self.render(self.items)
 
-        def message(self, title, content):
-            dialog = Gtk.Dialog(title=title, transient_for=self, modal=True)
-            dialog.add_button('Close', Gtk.ResponseType.CLOSE)
-            dialog.set_default_size(620, 350)
-            scroll = Gtk.ScrolledWindow()
-            label = Gtk.Label(label=content, xalign=0, yalign=0, wrap=True, selectable=True, margin=16)
-            label.set_max_width_chars(75)
-            scroll.add(label)
-            dialog.get_content_area().pack_start(scroll, True, True, 0)
-            dialog.show_all()
-            dialog.run()
-            dialog.destroy()
-
         def details(self, item):
             e = item.evidence
             lines = ([] if item.title.strip() == item.purpose.strip() else [item.title]) + [
@@ -599,7 +582,10 @@ def Window(application, service):
             self.message('Application details', '\n\n'.join(lines))
 
         def show_preview(self, preview):
-            self.status.set_text('Removal blocked by safety checks.' if not preview.ready else 'Removal queue validated for review. Execution has not been authorized.')
+            self.update_selection()
+            prefix = 'Removal blocked: ' if preview.plan.blocked else 'Removal unavailable: '
+            unavailable = (prefix + '; '.join(preview.unavailable_reasons)) if preview.unavailable_reasons else 'No removals proposed.'
+            self.status.set_text(unavailable if not preview.ready else 'Removal queue validated for review. Execution has not been authorized.')
             dialog = Gtk.Dialog(title='Removal queue', transient_for=self, modal=True)
             dialog.set_default_size(650, 520)
             dialog.add_button('Back to review', Gtk.ResponseType.CANCEL)
@@ -612,7 +598,7 @@ def Window(application, service):
             outer.add(box)
             box.set_spacing(12)
             box.set_border_width(16)
-            summary = ('Removal blocked by safety checks.' if not preview.ready else 'Validated removal preview — ready for review.')
+            summary = (unavailable if not preview.ready else 'Validated removal preview — ready for review.')
             summary += '\n\n' + '\n'.join(preview.applications)
             summary += f'\n\nAdditional unused supporting packages: {preview.supporting_count}'
             summary += '\nRecoverable space: not validated.' if preview.plan.blocked else ('\nPotential recovery upper bound (shared storage may reduce this): ' if preview.plan.provider_plans else '\nEstimated recoverable application space: ') + readable_size(preview.recoverable_bytes)
@@ -634,7 +620,7 @@ def Window(application, service):
             expander = Gtk.Expander(label='Details: complete package list and safety findings')
             scroll = Gtk.ScrolledWindow()
             scroll.set_min_content_height(160)
-            details = '\n'.join(preview.plan.blocked + preview.warnings)
+            details = '\n'.join(preview.unavailable_reasons + preview.warnings)
             for part in preview.plan.provider_plans:
                 details += '\n\n' + part.provider.upper() + ' — ' + part.installation + '\n' + '\n'.join(part.observations + part.blocked)
             details += '\n\nExplicitly queued applications:\n' + '\n'.join(preview.plan.requested)
@@ -664,44 +650,6 @@ def Window(application, service):
             self.outcomes = []
             self.session_error = ''
             self.perform('Validating the removal queue…', self.cleanup.begin, self.confirm_cleanup)
-
-        def confirmation_dialog(self, proposal):
-            plan = proposal.plan
-            dialog = Gtk.Dialog(title='Remove selected software?', transient_for=self, modal=True)
-            dialog.set_default_size(620, 440)
-            dialog.add_button('Cancel', Gtk.ResponseType.CANCEL)
-            remove = dialog.add_button('Remove', Gtk.ResponseType.ACCEPT)
-            remove.get_style_context().add_class('destructive-action')
-            remove.set_tooltip_text('Uninstall the software listed in this transaction')
-            dialog.set_default_response(Gtk.ResponseType.CANCEL)
-            scroll = Gtk.ScrolledWindow()
-            scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-            dialog.get_content_area().pack_start(scroll, True, True, 0)
-            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, margin=16)
-            scroll.add(box)
-            lines = [plan.provider.upper() + ' · ' + installation_label(plan.installation)]
-            if proposal.total > 1:
-                lines.append(f'Transaction {proposal.index} of {proposal.total}. Each is confirmed separately; completed removals cannot be rolled back.')
-            if proposal.changed:
-                lines.append('The proposal changed. Please review this updated list before approving.')
-            lines += ['\n' + '\n'.join(describe(proposal.packages[n])[0] for n in plan.requested)]
-            lines.append(f'Additional supporting packages: {len(plan.newly_orphaned)}')
-            if plan.dependent_removals:
-                lines.append('Other affected software: ' + ', '.join(describe(proposal.packages[n])[0] for n in plan.dependent_removals))
-            from .core.recommendations import application_savings
-            amount = sum(plan.savings.values()) if plan.provider == 'flatpak' else application_savings(plan) + plan.baseline_selected_bytes
-            lines.append(('Potential recovery upper bound: ' if plan.provider == 'flatpak' else 'Estimated recoverable space: ') + readable_size(amount))
-            lines.append('Application data will be kept.' if plan.provider == 'flatpak' else 'User files and package configuration are retained; uninstall scripts may perform package-specific cleanup.')
-            label = Gtk.Label(label='\n\n'.join(lines), xalign=0, wrap=True, max_width_chars=65)
-            box.pack_start(label, False, False, 0)
-            details = Gtk.Expander(label='Details')
-            text = 'Installation identifier: ' + plan.installation + '\n\nComplete removals:\n' + '\n'.join(plan.removed)
-            text += '\n\n' + '\n'.join(plan.observations)
-            technical = Gtk.Label(label=text, selectable=True, xalign=0, wrap=True, max_width_chars=65)
-            details.add(technical)
-            box.pack_start(details, False, False, 0)
-            dialog.show_all()
-            return dialog
 
         def confirm_cleanup(self, proposal):
             self.status.set_text('Review the removal proposal.')

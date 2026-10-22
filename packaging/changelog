@@ -1,3 +1,11 @@
+package-cleaner (0.1.1) unstable; urgency=medium
+
+  * Correct execution readiness and retain backend unavailability reasons.
+  * Add synthetic demonstration, AppStream metadata and contributor templates.
+  * Make Flatpak an optional recommended dependency; preserve APT support.
+
+ -- Erick Woods <17180367+woodpile72@users.noreply.github.com>  Wed, 21 Oct 2026 23:50:00 -0500
+
 package-cleaner (0.1.0) unstable; urgency=medium
 
   * First public pre-release with GTK and CLI interfaces.

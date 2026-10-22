@@ -24,7 +24,7 @@ Use temporary preferences, queues and evidence directories. Mock privileged laun
 - `core/cleanup.py` coordinates single-use GTK proposals, fresh validation, independent provider approvals and queue reconciliation.
 - `core/inventory.py`, `removal.py`, `execution.py`, `privileged.py` and `result_protocol.py` implement the APT path. APT is the dependency resolver; the locked helper checks the exact approved operation set again.
 - `core/flatpak_provider.py` and `flatpak_execution.py` own installation/ref identity, aborting previews, exact-operation checks, authorization boundaries and final-state reconciliation.
-- `gui.py` and `gui_icons.py` present GTK information and collect input. `display.py` contains plain shared formatting.
+- `gui.py`, `gui_dialogs.py`, `gui_formatting.py` and `gui_icons.py` present GTK information and collect input. `display.py` contains plain shared formatting.
 - `__main__.py`, `presentation.py`, `terminal.py` and `progress.py` implement the terminal frontend. Top-level compatibility modules forward older import paths to the core.
 
 The core must not import GTK or a frontend, print terminal UI, read input, or produce ANSI sequences. It remains usable without GTK. Both frontends consume structured results, domain exceptions and progress/cancellation APIs; do not parse one frontend's rendered output or duplicate business rules. The GUI must remain usable when CLI-specific files are removed.
@@ -41,6 +41,10 @@ Do not commit `work/`, generated inventories, runtime logs, private configuratio
 
 ## Building the Debian installer
 
-`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.0_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
+`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.1_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
 
-Run `lintian dist/package-cleaner_0.1.0_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.
+Run `lintian dist/package-cleaner_0.1.1_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.
+
+Generate the public screenshot with `/usr/bin/python3 tools/demo_screenshot.py` in a GTK session. It uses fabricated inventory and blocks execution, never host discovery. When building a source archive without Git history, timestamps fall back to the newest packaging changelog date. Flatpak bindings are recommended, not mandatory; missing Flatpak support leaves APT discovery available.
+
+`tools/check_deb_isolated.py dist/package-cleaner_0.1.1_all.deb` is an opt-in local packaging check requiring user namespaces and bubblewrap. It never modifies the host package database. It uses `--force-depends` in an otherwise empty temporary dpkg root, then read-only host runtime mounts; dependency metadata must also be checked with APT simulation. Its live preview targets an already installed Package Cleaner. It is not part of CI and is not a substitute for a fresh Mint VM trial.

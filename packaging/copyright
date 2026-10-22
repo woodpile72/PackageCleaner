@@ -16,3 +16,9 @@ License: GPL-3.0-only
  .
  On Debian-based systems, the full license text is available at
  /usr/share/common-licenses/GPL-3.
+
+Files: data/org.packagecleaner.Review.metainfo.xml
+Copyright: 2026 Erick Woods
+License: CC0-1.0
+ The AppStream catalog metadata is dedicated to the public domain under CC0.
+ Full text: /usr/share/doc/package-cleaner/CC0-1.0.txt

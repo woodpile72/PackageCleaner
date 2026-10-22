@@ -105,7 +105,7 @@ class GtkExecutionTests(unittest.TestCase):
             self.assertEqual(window.get_title(),'Package Cleaner')
             self.assertEqual(window.content_stack.get_visible_child_name(),'about')
             labels=[child.get_text() for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)]
-            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.0'])
+            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.1'])
             self.assertEqual(window.about_page.get_halign(),self.Gtk.Align.CENTER)
             self.assertEqual(window.about_page.get_valign(),self.Gtk.Align.CENTER)
             self.assertTrue(all(child.get_xalign()==0.5 for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)))
@@ -139,3 +139,20 @@ class GtkExecutionTests(unittest.TestCase):
             self.assertLessEqual(position[1]+button.get_allocated_height(),window.get_allocated_height())
             self.assertTrue(button.get_can_focus())
             self.assertEqual(window.content_stack.get_visible_child_name(),'about')
+    def test_disabled_preview_shows_reason_and_no_remove_action(self):
+        from package_cleaner.core.review_service import Preview
+        plan=self.fixture.plan
+        plan.execution_disabled=True;plan.observations=['Required validation signal unavailable']
+        preview=Preview(plan,['Example'],0,0,[])
+        self.fixture.service.preview=preview
+        seen=[]
+        def inspect(dialog):
+            seen.append(True)
+            self.assertIsNone(dialog.get_widget_for_response(self.Gtk.ResponseType.ACCEPT))
+            self.assertIn('Required validation signal unavailable',self.window.status.get_text())
+            return self.Gtk.ResponseType.CANCEL
+        with patch.object(self.Gtk.Dialog,'run',inspect):self.window.show_preview(preview)
+        self.assertTrue(seen)
+        self.assertFalse(self.window.remove_button.get_sensitive())
+        self.assertTrue(self.window.preview_button.get_sensitive())
+        self.fixture.execute_mock.assert_not_called()

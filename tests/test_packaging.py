@@ -7,6 +7,8 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import shutil
+from package_cleaner import __version__
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -17,7 +19,7 @@ class DebianPackageTests(unittest.TestCase):
             env={**os.environ,'SOURCE_DATE_EPOCH':'1792600000'}
             cmd=['/usr/bin/python3',str(ROOT/'packaging/build_deb.py'),'--output',str(out)]
             subprocess.run(cmd,check=True,capture_output=True,env=env)
-            deb=out/'package-cleaner_0.1.0_all.deb'
+            deb=out/f'package-cleaner_{__version__}_all.deb'
             first=hashlib.sha256(deb.read_bytes()).hexdigest()
             subprocess.run(cmd,check=True,capture_output=True,env=env)
             self.assertEqual(first,hashlib.sha256(deb.read_bytes()).hexdigest())
@@ -25,6 +27,18 @@ class DebianPackageTests(unittest.TestCase):
             subprocess.run(['dpkg-deb','-e',str(deb),str(control)],check=True)
             subprocess.run(['dpkg-deb','-x',str(deb),str(root)],check=True)
             self.assertEqual({p.name for p in control.iterdir()},{'control'})
+            metadata=(control/'control').read_text()
+            self.assertIn('Version: '+__version__,metadata)
+            depends=next(line for line in metadata.splitlines() if line.startswith('Depends:'))
+            self.assertNotIn('flatpak',depends)
+            self.assertIn('Recommends: flatpak, gir1.2-flatpak-1.0',metadata)
+            helper=root/'usr/share/package-cleaner/package_cleaner/core/privileged.py'
+            self.assertEqual(helper.stat().st_mode & 0o7777,0o644)
+            self.assertIn('parents[2]',helper.read_text())
+            execution=(helper.parent/'execution.py').read_text()
+            self.assertIn("'/usr/bin/python3', '-I', str(helper)",execution)
+            self.assertIn("'/usr/bin/sudo'",execution)
+            self.assertTrue((root/'usr/share/metainfo/org.packagecleaner.Review.metainfo.xml').exists())
             listing=subprocess.check_output(['dpkg-deb','-c',str(deb)],text=True)
             self.assertTrue(all('root/root' in line for line in listing.splitlines()))
             self.assertNotIn('__pycache__',listing)
@@ -39,7 +53,18 @@ class DebianPackageTests(unittest.TestCase):
                 script=root/'usr/bin'/name
                 self.assertEqual(script.stat().st_mode & 0o7777,0o755)
                 self.assertIn('/usr/share/package-cleaner',script.read_text())
-            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__=='0.1.0';assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
+            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__=='0.1.1';assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
             result=subprocess.run(['/usr/bin/python3','-I','-c',code,str(root/'usr/share/package-cleaner')],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertIn('usage:',result.stdout)
+
+    def test_build_from_source_archive_without_git(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'source';root.mkdir()
+            for name in ('package_cleaner','packaging','data','docs'):
+                shutil.copytree(ROOT/name,root/name,ignore=shutil.ignore_patterns('__pycache__'))
+            shutil.copyfile(ROOT/'README.md',root/'README.md')
+            env={k:v for k,v in os.environ.items() if k!='SOURCE_DATE_EPOCH'}
+            result=subprocess.run(['/usr/bin/python3',str(root/'packaging/build_deb.py')],capture_output=True,text=True,env=env)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertTrue((root/'dist'/f'package-cleaner_{__version__}_all.deb').exists())

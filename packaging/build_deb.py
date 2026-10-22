@@ -3,6 +3,7 @@
 # Copyright (C) 2026 Erick Woods
 """Build an unprivileged, root-owned .deb using only Python and dpkg-deb."""
 import argparse
+from email.utils import parsedate_to_datetime
 import gzip
 import os
 from pathlib import Path
@@ -21,7 +22,11 @@ def build(output):
     output.mkdir(parents=True, exist_ok=True)
     epoch = os.environ.get('SOURCE_DATE_EPOCH')
     if epoch is None:
-        epoch = subprocess.check_output(['git', 'log', '-1', '--format=%ct'], cwd=ROOT, text=True).strip()
+        try:
+            epoch = subprocess.check_output(['git', 'log', '-1', '--format=%ct'], cwd=ROOT, text=True, stderr=subprocess.DEVNULL).strip()
+        except subprocess.CalledProcessError:
+            date = next(line.split('>  ', 1)[1] for line in (ROOT / 'packaging/changelog').read_text().splitlines() if line.startswith(' -- '))
+            epoch = int(parsedate_to_datetime(date).timestamp())
     epoch = int(epoch)
     with tempfile.TemporaryDirectory(prefix='package-cleaner-deb-') as temporary:
         stage = Path(temporary)
@@ -43,8 +48,10 @@ def build(output):
         for source, destination in [
             ('data/org.packagecleaner.Review.desktop', 'usr/share/applications/org.packagecleaner.Review.desktop'),
             ('data/package-cleaner.svg', 'usr/share/icons/hicolor/scalable/apps/package-cleaner.svg'),
+            ('data/org.packagecleaner.Review.metainfo.xml', 'usr/share/metainfo/org.packagecleaner.Review.metainfo.xml'),
             ('packaging/copyright', 'usr/share/doc/package-cleaner/copyright'),
             ('README.md', 'usr/share/doc/package-cleaner/README.md'),
+            ('docs/CC0-1.0.txt', 'usr/share/doc/package-cleaner/CC0-1.0.txt'),
         ]:
             target = stage / destination
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +61,7 @@ def build(output):
         man = stage / 'usr/share/man/man1'
         man.mkdir(parents=True)
         for name in ('package-cleaner', 'package-cleaner-gui'):
-            (man / (name + '.1.gz')).write_bytes(gzip.compress((ROOT / 'packaging' / (name + '.1')).read_bytes(), mtime=0))
+            (man / (name + '.1.gz')).write_bytes(gzip.compress((ROOT / 'packaging' / (name + '.1')).read_text().replace('@VERSION@', __version__).encode(), mtime=0))
         size = (sum(p.stat().st_size for p in stage.rglob('*') if p.is_file()) + 1023) // 1024
         control = stage / 'DEBIAN'
         control.mkdir()
@@ -64,8 +71,8 @@ Section: admin
 Priority: optional
 Architecture: all
 Maintainer: Erick Woods <17180367+woodpile72@users.noreply.github.com>
-Depends: python3 (>= 3.10), python3-apt, python3-gi, gir1.2-gtk-3.0, librsvg2-common, apt, sudo, flatpak, gir1.2-flatpak-1.0
-Recommends: ssh-askpass | ksshaskpass | kdesvn
+Depends: python3 (>= 3.10), python3-apt, python3-gi, gir1.2-gtk-3.0, librsvg2-common, apt, sudo
+Recommends: flatpak, gir1.2-flatpak-1.0, ssh-askpass | ksshaskpass | kdesvn
 Installed-Size: {size}
 Homepage: https://github.com/woodpile72/PackageCleaner
 Description: GTK and CLI software cleanup utility for Linux Mint

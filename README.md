@@ -6,7 +6,9 @@ Package Cleaner helps you examine installed applications, investigate potentiall
 
 Written in Python, with a native GTK interface and an interactive terminal interface. This is an early public release: review proposed changes carefully and maintain backups before removing software.
 
-![Package Cleaner About page, shown with the Mint dark theme](docs/images/about.png)
+![Package Cleaner reviewing fictional APT and Flatpak applications](docs/images/review.png)
+
+*Demonstration data: application choices, sizes and queue entries are fabricated, not a real inventory.*
 
 ## Features
 
@@ -24,7 +26,7 @@ Written in Python, with a native GTK interface and an interactive terminal inter
 
 Developed and tested on **Linux Mint 22.3 Cinnamon**, using the system Python 3 and GTK 3. The APT backend targets the standard Debian/Ubuntu package-management layout. Other distributions, custom APT roots/configurations, and desktop environments have not been validated; Debian/Ubuntu compatibility is a design direction, not a support guarantee.
 
-Version **0.1.0** is a pre-release. A `.deb` installer and source archives are available on the [releases page](https://github.com/woodpile72/PackageCleaner/releases). There is no PyPI distribution. Do not run the GUI as root.
+Version **0.1.1** is a pre-release. A `.deb` installer and source archives are available on the [releases page](https://github.com/woodpile72/PackageCleaner/releases). There is no PyPI distribution. Do not run the GUI as root.
 
 ## Requirements
 
@@ -34,22 +36,24 @@ Use `/usr/bin/python3`, so distro-provided bindings are available. Python 3.10 o
 | --- | --- |
 | APT inventory and execution | `python3-apt`, APT and dpkg tools |
 | GTK interface | `python3-gi`, `gir1.2-gtk-3.0`, SVG loader (`librsvg2-common`), desktop display/session |
-| Flatpak support | `flatpak`, `gir1.2-flatpak-1.0`, `python3-gi` |
+| Optional Flatpak support (recommended by the installer) | `flatpak`, `gir1.2-flatpak-1.0`, `python3-gi` |
 | APT authorization | `sudo`; GUI execution also requires a supported system askpass program |
 | Flatpak system authorization | Working desktop polkit authentication agent, when authorization is required |
 | Source checkout | `git` |
 
-Use Mint's package manager to install missing dependencies. Package Cleaner never installs them automatically. No pip dependencies are required. Optional systemd/journal and socket observations depend on available tools and permissions; inaccessible history reduces evidence coverage.
+Use Mint's package manager to install missing dependencies. Package Cleaner never installs them automatically. No pip dependencies are required. Flatpak and its bindings are recommended by the Debian package, not mandatory. If both are absent, APT remains available. If Flatpak is installed but cannot be inspected, discovery reports the gap and execution fails closed until inventory coverage is restored.
+
+Optional systemd/journal and socket observations depend on available tools and permissions; inaccessible history reduces evidence coverage.
 
 Graphical APT authentication currently searches for root-owned, non-writable executables at `/usr/bin/ssh-askpass`, `/usr/lib/openssh/ssh-askpass`, `/usr/lib/ssh/ssh-askpass`, `/usr/bin/ksshaskpass`, and `/usr/bin/kdesvnaskpass`. If none are available, use the terminal interface or configure an appropriate system-provided askpass package. Package Cleaner does not collect passwords.
 
 ## Install the Debian package
 
-Download `package-cleaner_0.1.0_all.deb` and `SHA256SUMS` from the [v0.1.0 pre-release](https://github.com/woodpile72/PackageCleaner/releases/tag/v0.1.0). In the download directory:
+Download `package-cleaner_0.1.1_all.deb` and `SHA256SUMS` from the [v0.1.1 pre-release](https://github.com/woodpile72/PackageCleaner/releases/tag/v0.1.1). In the download directory:
 
 ```sh
 sha256sum -c SHA256SUMS
-sudo apt install ./package-cleaner_0.1.0_all.deb
+sudo apt install ./package-cleaner_0.1.1_all.deb
 ```
 
 Review APT's proposed changes before confirming. The `all` architecture package contains Python and SVG assets, not native compiled code. It targets Linux Mint 22.3; installation on other Debian-derived distributions is not a compatibility guarantee.
@@ -156,3 +160,7 @@ Bug reports and pull requests are welcome through [GitHub Issues](https://github
 Copyright © 2026 Erick Woods.
 
 Package Cleaner source, documentation and original application artwork are licensed under the **GNU General Public License version 3 only** (`GPL-3.0-only`). See the complete [LICENSE](LICENSE). External system libraries and icon themes retain their own licenses; they are not bundled. See [third-party notes](docs/THIRD_PARTY.md).
+
+The About page displays the authoritative application version. See [CHANGELOG.md](CHANGELOG.md) for release changes. AppStream catalog metadata alone is CC0-1.0; application code and artwork remain GPL-3.0-only.
+
+Installer validation includes archive ownership/permissions, reproducible builds, lintian, and install/remove in a disposable dpkg root with packaged runtime checks against read-only host libraries. Dependencies were checked separately with APT simulation; this is not a fresh Mint VM test or production certification.
