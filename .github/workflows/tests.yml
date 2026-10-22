@@ -1,0 +1,21 @@
+name: Safe automated tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies on the disposable CI runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends python3-apt python3-gi gir1.2-gtk-3.0 gir1.2-flatpak-1.0 librsvg2-common xvfb xauth dbus-x11
+      - name: Safe unit tests (mocked removal backends)
+        run: /usr/bin/python3 -m unittest discover -s tests -q
+      - name: Native GTK tests (mocked removal, virtual desktop)
+        run: dbus-run-session -- xvfb-run -a env PACKAGE_CLEANER_GTK_TESTS=1 /usr/bin/python3 -m unittest discover -s tests -q

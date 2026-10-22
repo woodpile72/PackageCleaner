@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Package Cleaner
+Comment=Review installed applications and preview cleanup
+Exec=package-cleaner-gui
+Icon=package-cleaner
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true

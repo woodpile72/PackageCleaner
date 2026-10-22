@@ -1,0 +1,36 @@
+# Local investigations, inventories, execution evidence and screenshots
+/work/
+/outputs/
+/logs/
+*.log
+*.jsonl
+approval.json*
+result.json
+cleanup-result.json
+cross-provider.json.gz
+after-dpkg.json.gz
+execution.log
+evidence.json.gz
+preferences.json
+cleanup-selection.json
+# Python build/test outputs and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+# Private environment/configuration and editor state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.idea/
+.vscode/
+*~
+.DS_Store
