@@ -226,7 +226,7 @@ def Window(application, service):
             self.preview_button = Gtk.Button(label='Review cleanup queue')
             self.preview_button.connect('clicked', lambda _: self.perform('Validating the removal queue…', service.validate, self.show_preview))
             queue_actions.pack_start(self.preview_button, False, False, 0)
-            self.remove_button = Gtk.Button(label='Remove Selected Software')
+            self.remove_button = Gtk.Button(label='Remove selected software')
             self.remove_button.set_tooltip_text('Validate and review the queue before confirming removal')
             self.remove_button.connect('clicked', self.start_cleanup)
             queue_actions.pack_start(self.remove_button, False, False, 0)
@@ -511,10 +511,10 @@ def Window(application, service):
                 for label, callback in (
                     ('Details', lambda _, i=item: self.details(i)),
                     ('Keep permanently', lambda _, i=item: self.perform('Saving your Keep choice…', lambda: service.keep(i.package), lambda value: self.after_keep(i))),
-                    ('Queue Removal', lambda _, i=item: self.perform('Updating the removal queue…', lambda: service.select(i.package), lambda value: self.after_queue(i)))):
+                    ('Queue removal', lambda _, i=item: self.perform('Updating the removal queue…', lambda: service.select(i.package), lambda value: self.after_queue(i)))):
                     button = Gtk.Button(label=label)
-                    decorate_button(button, {'Details': 'details', 'Keep permanently': 'keep', 'Queue Removal': 'queue'}[label])
-                    if label == 'Queue Removal':
+                    decorate_button(button, {'Details': 'details', 'Keep permanently': 'keep', 'Queue removal': 'queue'}[label])
+                    if label == 'Queue removal':
                         button.set_sensitive(not item.protected)
                         button.set_tooltip_text('Save your intention to remove this application. Review cleanup queue validates the proposed transaction; queuing never authorizes execution.')
                     button.connect('clicked', callback)
@@ -590,7 +590,7 @@ def Window(application, service):
             dialog.set_default_size(650, 520)
             dialog.add_button('Back to review', Gtk.ResponseType.CANCEL)
             if preview.ready:
-                dialog.add_button('Remove Selected Software…', Gtk.ResponseType.ACCEPT)
+                dialog.add_button('Remove selected software…', Gtk.ResponseType.ACCEPT)
             outer = Gtk.ScrolledWindow()
             outer.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
             dialog.get_content_area().pack_start(outer, True, True, 0)

@@ -1,3 +1,10 @@
+package-cleaner (0.1.2) unstable; urgency=medium
+
+  * Standardize GTK and CLI action labels to sentence case.
+  * Update documentation and label tests; preserve cleanup behavior.
+
+ -- Erick Woods <17180367+woodpile72@users.noreply.github.com>  Wed, 21 Oct 2026 23:59:00 -0500
+
 package-cleaner (0.1.1) unstable; urgency=medium
 
   * Correct execution readiness and retain backend unavailability reasons.

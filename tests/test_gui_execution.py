@@ -105,7 +105,7 @@ class GtkExecutionTests(unittest.TestCase):
             self.assertEqual(window.get_title(),'Package Cleaner')
             self.assertEqual(window.content_stack.get_visible_child_name(),'about')
             labels=[child.get_text() for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)]
-            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.1'])
+            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.2'])
             self.assertEqual(window.about_page.get_halign(),self.Gtk.Align.CENTER)
             self.assertEqual(window.about_page.get_valign(),self.Gtk.Align.CENTER)
             self.assertTrue(all(child.get_xalign()==0.5 for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)))

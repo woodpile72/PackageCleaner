@@ -106,7 +106,7 @@ class TerminalTests(unittest.TestCase):
     def test_styles_wrap_plain_text_and_highlight_shortcuts(self):
         with patch.dict(os.environ, {'TERM': 'xterm'}, clear=True):
             stream = TTY()
-            write('[K] Keep it permanently [R] Queue Removal [D] Details', 'actions', stream, width=30)
+            write('[K] Keep it permanently [R] Queue removal [D] Details', 'actions', stream, width=30)
         text = stream.getvalue()
         self.assertIn('\033[1;36m[K]', text)
         plain = re.sub(r'\x1b\[[0-9;]*m', '', text)

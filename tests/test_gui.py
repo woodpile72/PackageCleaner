@@ -180,7 +180,7 @@ class GtkTests(ReviewServiceTests):
                     window.component_filter.set_active_id('all')
                     row=next(r for r in window.rows.get_children() if r.package_id=='protected')
                     actions=row.get_child().get_children()[1].get_children()[-1].get_children()
-                    self.assertFalse(next(b for b in actions if b.get_label()=='Queue Removal').get_sensitive())
+                    self.assertFalse(next(b for b in actions if b.get_label()=='Queue removal').get_sensitive())
                     window.search.set_text('tool')
                     self.assertFalse(window.component_controls.get_visible())
                     window.search.set_text('')
@@ -331,7 +331,7 @@ class GtkTests(ReviewServiceTests):
                 window.search.set_text(protected.name)
                 self.assertTrue(window.items[0].protected)
                 protected_actions = window.rows.get_children()[0].get_child().get_children()[1].get_children()[-1].get_children()
-                self.assertFalse(next(b for b in protected_actions if b.get_label() == 'Queue Removal').get_sensitive())
+                self.assertFalse(next(b for b in protected_actions if b.get_label() == 'Queue removal').get_sensitive())
                 window.search.set_text('')
                 self.assertEqual(discover.call_count,calls_before)
                 window.details(self.item)
@@ -340,8 +340,8 @@ class GtkTests(ReviewServiceTests):
                     if isinstance(widget, Gtk.Container):
                         for child in widget.get_children():
                             yield from descendants(child)
-                queue = next(w for w in descendants(window) if isinstance(w, Gtk.Button) and w.get_label() == 'Queue Removal')
-                self.assertEqual(queue.get_accessible().get_name(), 'Queue Removal')
+                queue = next(w for w in descendants(window) if isinstance(w, Gtk.Button) and w.get_label() == 'Queue removal')
+                self.assertEqual(queue.get_accessible().get_name(), 'Queue removal')
                 self.assertIn('never authorizes execution', queue.get_tooltip_text())
                 queue.clicked()
                 drain(window)

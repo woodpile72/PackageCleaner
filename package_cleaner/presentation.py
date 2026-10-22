@@ -433,7 +433,7 @@ def review(packages, candidates=None, log=None, preferences=None, limit=5, categ
         if item.package in preferences.kept or item.identity in preferences.kept:
             print('Currently marked Keep; future scans will leave it out.')
         protected = bool(packages[item.package].protected)
-        write('[K] Keep permanently  ' + ('' if protected else '[R] Queue Removal  ') + '[S] Skip  [P] Previous  [D] Details  [T] Advanced package information  [F] Finish  [Q] Quit', 'actions')
+        write('[K] Keep permanently  ' + ('' if protected else '[R] Queue removal  ') + '[S] Skip  [P] Previous  [D] Details  [T] Advanced package information  [F] Finish  [Q] Quit', 'actions')
         answer = ask('What would you like to do? ' + ('[K/S/P/D/T/F/Q]:' if protected else '[K/R/S/P/D/T/F/Q]:'), 'question')
         if answer == 'q':
             return quit_review(selected)
@@ -541,10 +541,10 @@ def review(packages, candidates=None, log=None, preferences=None, limit=5, categ
                 title, purpose, keep_reason = describe(fresh[name])
                 print(f'\nAlso affected: {title}\n{purpose}\n{keep_reason}')
                 print('Your current selection would also remove this software. It needs a separate decision.')
-                choice = ask('[R] Queue Removal — add to preview  [K] Keep permanently  [S] Skip  [D] Details  [Q] Quit: ')
+                choice = ask('[R] Queue removal — add to preview  [K] Keep permanently  [S] Skip  [D] Details  [Q] Quit: ')
                 while choice == 'd':
                     details(fresh[name], fresh)
-                    choice = ask('[R] Queue Removal — add to preview  [K] Keep permanently  [S] Skip  [Q] Quit: ')
+                    choice = ask('[R] Queue removal — add to preview  [K] Keep permanently  [S] Skip  [Q] Quit: ')
                 if choice == 'q':
                     return quit_review(selected | additions)
                 if choice == 'r':
@@ -563,7 +563,7 @@ def review(packages, candidates=None, log=None, preferences=None, limit=5, categ
 
 
 def review_help():
-    write('Choose a category, then review one application at a time. [K] Keep permanently saves your choice; [R] Queue Removal checks the proposed changes; [S] Skip asks again next time. At a set boundary, [N] Next set continues the review. [P] Previous revisits a suggestion; [D] Details shows more information. [F] Finish shows your selected cleanup; [Q] Quit discards it.')
+    write('Choose a category, then review one application at a time. [K] Keep permanently saves your choice; [R] Queue removal checks the proposed changes; [S] Skip asks again next time. At a set boundary, [N] Next set continues the review. [P] Previous revisits a suggestion; [D] Details shows more information. [F] Finish shows your selected cleanup; [Q] Quit discards it.')
     write('Removal is available only with --enable-removal, followed by Execute and exact REMOVE confirmation. Usage records may be incomplete, and old file timestamps do not prove non-use. Details explains the current application. Advanced package information and the final detailed proposal are paginated.')
 
 

@@ -22,4 +22,4 @@ jobs:
       - name: Build Debian package without installing it
         run: |
           /usr/bin/python3 packaging/build_deb.py
-          dpkg-deb --info dist/package-cleaner_0.1.1_all.deb
+          dpkg-deb --info dist/package-cleaner_0.1.2_all.deb

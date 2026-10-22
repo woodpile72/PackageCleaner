@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — pre-release
+
+- Use consistent sentence case for GTK and CLI action labels.
+- Update matching documentation and tests. No cleanup behavior changed.
+
 ## 0.1.1 — pre-release
 
 - Correct disabled-backend readiness and show the backend's actual reason.

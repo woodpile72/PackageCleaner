@@ -99,7 +99,7 @@ class GuidedTests(unittest.TestCase):
         result, output, simulate, inventory = self.run_review(['k', 'p', 'r', 'f', 'f'])
         self.assertEqual(result, 0)
         self.assertNotIn('one:amd64', self.prefs.kept)
-        self.assertEqual(inventory.call_count, 2)  # choosing Queue Removal and final revalidation
+        self.assertEqual(inventory.call_count, 2)  # choosing Queue removal and final revalidation
         self.assertEqual(simulate.call_args.args[0], ['one:amd64'])
         self.assertIn('Reviewing suggestion 2 of 2', output)
         self.assertIn('Your cleanup summary', output)
@@ -181,7 +181,7 @@ class GuidedTests(unittest.TestCase):
     def test_quit_discards_staged_selection_without_final_revalidation(self):
         result, output, simulate, inventory = self.run_review(['r', 'q'])
         self.assertEqual(result, 0)
-        self.assertEqual(simulate.call_count, 1)  # Only the earlier Queue Removal preview.
+        self.assertEqual(simulate.call_count, 1)  # Only the earlier Queue removal preview.
         self.assertEqual(inventory.call_count, 1)
         self.assertNotIn('Your cleanup summary', output)
         self.assertIn('Queued removal choices discarded', output)
@@ -219,7 +219,7 @@ class GuidedTests(unittest.TestCase):
         simulate.assert_not_called()
         inventory.assert_not_called()
         self.assertEqual(output.count('Reviewing suggestion 1 of 2'), 3)
-        for label in ('[K] Keep permanently', '[R] Queue Removal', '[S] Skip',
+        for label in ('[K] Keep permanently', '[R] Queue removal', '[S] Skip',
                       '[P] Previous', '[D] Details', '[F] Finish', '[Q] Quit'):
             self.assertIn(label, output)
         self.assertNotIn('[Y]', output)
