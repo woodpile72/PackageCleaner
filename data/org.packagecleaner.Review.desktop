@@ -5,5 +5,5 @@ Comment=Review installed applications and preview cleanup
 Exec=package-cleaner-gui
 Icon=package-cleaner
 Terminal=false
-Categories=System;Utility;
+Categories=System;
 StartupNotify=true

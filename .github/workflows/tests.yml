@@ -19,3 +19,7 @@ jobs:
         run: /usr/bin/python3 -m unittest discover -s tests -q
       - name: Native GTK tests (mocked removal, virtual desktop)
         run: dbus-run-session -- xvfb-run -a env PACKAGE_CLEANER_GTK_TESTS=1 /usr/bin/python3 -m unittest discover -s tests -q
+      - name: Build Debian package without installing it
+        run: |
+          /usr/bin/python3 packaging/build_deb.py
+          dpkg-deb --info dist/package-cleaner_0.1.0_all.deb

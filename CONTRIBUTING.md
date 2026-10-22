@@ -38,3 +38,9 @@ Changes affecting removal require particularly careful review: protected and uns
 Do not run real removals while testing a pull request. Any real-system trial requires separate informed authorization, a disposable or backed-up system, and preserved evidence. Report what was actually verified rather than claiming absolute safety.
 
 Do not commit `work/`, generated inventories, runtime logs, private configuration, credentials or unredacted screenshots. Review the complete staged diff, including fixtures. Contributions are made under GPL-3.0-only; retain third-party notices and document any new asset's provenance and license.
+
+## Building the Debian installer
+
+`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.0_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
+
+Run `lintian dist/package-cleaner_0.1.0_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.

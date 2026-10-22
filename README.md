@@ -24,7 +24,7 @@ Written in Python, with a native GTK interface and an interactive terminal inter
 
 Developed and tested on **Linux Mint 22.3 Cinnamon**, using the system Python 3 and GTK 3. The APT backend targets the standard Debian/Ubuntu package-management layout. Other distributions, custom APT roots/configurations, and desktop environments have not been validated; Debian/Ubuntu compatibility is a design direction, not a support guarantee.
 
-There is no bundled installer, PyPI distribution, or assigned application version yet. Run the reviewed source checkout. Do not run the GUI as root.
+Version **0.1.0** is a pre-release. A `.deb` installer and source archives are available on the [releases page](https://github.com/woodpile72/PackageCleaner/releases). There is no PyPI distribution. Do not run the GUI as root.
 
 ## Requirements
 
@@ -42,6 +42,19 @@ Use `/usr/bin/python3`, so distro-provided bindings are available. Python 3.10 o
 Use Mint's package manager to install missing dependencies. Package Cleaner never installs them automatically. No pip dependencies are required. Optional systemd/journal and socket observations depend on available tools and permissions; inaccessible history reduces evidence coverage.
 
 Graphical APT authentication currently searches for root-owned, non-writable executables at `/usr/bin/ssh-askpass`, `/usr/lib/openssh/ssh-askpass`, `/usr/lib/ssh/ssh-askpass`, `/usr/bin/ksshaskpass`, and `/usr/bin/kdesvnaskpass`. If none are available, use the terminal interface or configure an appropriate system-provided askpass package. Package Cleaner does not collect passwords.
+
+## Install the Debian package
+
+Download `package-cleaner_0.1.0_all.deb` and `SHA256SUMS` from the [v0.1.0 pre-release](https://github.com/woodpile72/PackageCleaner/releases/tag/v0.1.0). In the download directory:
+
+```sh
+sha256sum -c SHA256SUMS
+sudo apt install ./package-cleaner_0.1.0_all.deb
+```
+
+Review APT's proposed changes before confirming. The `all` architecture package contains Python and SVG assets, not native compiled code. It targets Linux Mint 22.3; installation on other Debian-derived distributions is not a compatibility guarantee.
+
+Launch **Package Cleaner** from the application menu, or use `package-cleaner gui` / `package-cleaner` in a terminal. The installer supplies the desktop entry, icon, manual pages and root-owned application code. It does not run cleanup, add services or change sudoers. Keep preferences and queue data remain in your user's XDG directories. To uninstall the utility itself, use `sudo apt remove package-cleaner`; user preferences and logs are retained.
 
 ## Install from source
 

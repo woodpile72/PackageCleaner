@@ -3,6 +3,7 @@
 """Native GTK presentation. Package operations live in review_service and core modules."""
 import os
 import time
+from . import __version__
 from .core.operations import CancellationToken, OperationCancelled, operation
 from concurrent.futures import ThreadPoolExecutor
 from .core.review_service import ReviewService
@@ -138,6 +139,7 @@ def Window(application, service):
             about_name.set_markup('<big><b>Package Cleaner</b></big>')
             self.about_page.pack_start(about_name, False, False, 0)
             self.about_page.pack_start(Gtk.Label(label='© 2026 Erick Woods', xalign=0.5), False, False, 0)
+            self.about_page.pack_start(Gtk.Label(label='Version ' + __version__, xalign=0.5), False, False, 0)
             self.content_stack.add_named(self.about_page, 'about')
             self.paned.pack2(self.content_stack, resize=True, shrink=False)
             self.paned.set_position(220)

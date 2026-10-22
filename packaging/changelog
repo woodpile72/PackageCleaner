@@ -1,0 +1,6 @@
+package-cleaner (0.1.0) unstable; urgency=medium
+
+  * First public pre-release with GTK and CLI interfaces.
+  * Add a Debian installer for the validated Linux Mint environment.
+
+ -- Erick Woods <17180367+woodpile72@users.noreply.github.com>  Wed, 21 Oct 2026 23:30:00 -0500

@@ -1,0 +1,27 @@
+.TH PACKAGE-CLEANER 1 "October 2026" "Package Cleaner 0.1.0"
+.SH NAME
+package-cleaner \- review and explicitly remove unnecessary software
+.SH SYNOPSIS
+.B package-cleaner
+.RI [ options ] " [command]"
+.SH DESCRIPTION
+Reviews APT and Flatpak applications. Without arguments, opens the guided
+terminal menu. Discovery and previews do not authorize removal.
+.SH OPTIONS
+.TP
+.B --help
+Display all supported commands and options.
+.TP
+.B --enable-removal
+Offer execution after validation and a separate explicit confirmation.
+.TP
+.B gui
+Open the graphical interface, which uses its own final confirmation dialog.
+.SH SAFETY
+Run as your normal user. The existing privileged helper requests administrator
+authorization only for APT execution. Removal can run package-manager scripts;
+previews cannot guarantee absolute safety. Back up important data first.
+.SH FILES
+Preferences and queue data use XDG configuration and state directories.
+.SH SEE ALSO
+.BR package-cleaner-gui (1)
