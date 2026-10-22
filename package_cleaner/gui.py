@@ -12,7 +12,7 @@ from .core.recommendations import CATEGORIES, inactivity_assessment, describe
 from .display import local_date, installation_label
 from .gui_dialogs import Dialogs
 from .gui_formatting import readable_size
-from .gui_icons import themed_image, decorate_button, icon_name, application_pixbuf, ICON_SIZES
+from .gui_icons import themed_image, decorate_button, icon_name, application_pixbuf, ICON_SIZES, application_list_image
 from .core.footprint import LARGE_DESCRIPTION
 from .core.classification import FILTERS, filter_components
 from .core.providers import filter_sources
@@ -49,7 +49,7 @@ def run(preferences=None):
 def Window(application, service):
     import gi
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, GLib, Gio, Pango
+    from gi.repository import Gtk, GLib, Pango
 
     class CategoryList(Gtk.ListBox):
         """Native, focusable navigation; IDs keep existing search routing intact."""
@@ -501,7 +501,7 @@ def Window(application, service):
             for item in visible_items:
                 row = Gtk.Box(spacing=14, margin=12)
                 icon = service.icons.get(item.package, 'application-x-executable')
-                image = Gtk.Image.new_from_gicon(Gio.FileIcon.new(Gio.File.new_for_path(icon)), Gtk.IconSize.DIALOG) if os.path.isabs(icon) else Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.DIALOG)
+                image = application_list_image(icon)
                 row.pack_start(image, False, False, 0)
                 text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
                 title = Gtk.Label(xalign=0, wrap=True, width_chars=1)
