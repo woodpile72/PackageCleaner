@@ -60,4 +60,3 @@ class Dialogs:
         box.pack_start(details, False, False, 0)
         dialog.show_all()
         return dialog
-
