@@ -30,7 +30,7 @@ class Dialogs:
         dialog.add_button('Cancel', Gtk.ResponseType.CANCEL)
         remove = dialog.add_button('Remove', Gtk.ResponseType.ACCEPT)
         remove.get_style_context().add_class('destructive-action')
-        remove.set_tooltip_text('Uninstall the Software Listed in This Transaction')
+        remove.set_tooltip_text('Remove Confirmed Software')
         dialog.set_default_response(Gtk.ResponseType.CANCEL)
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

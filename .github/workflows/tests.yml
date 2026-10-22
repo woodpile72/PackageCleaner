@@ -11,15 +11,31 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - name: Install test dependencies on the disposable CI runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends python3-apt python3-gi gir1.2-gtk-3.0 gir1.2-flatpak-1.0 librsvg2-common xvfb xauth dbus-x11
+          sudo apt-get install --no-install-recommends python3-apt python3-gi gir1.2-gtk-3.0 gir1.2-flatpak-1.0 librsvg2-common xvfb xauth dbus-x11 lintian appstream bubblewrap
       - name: Safe unit tests (mocked removal backends)
         run: /usr/bin/python3 -m unittest discover -s tests -q
       - name: Native GTK tests (mocked removal, virtual desktop)
         run: dbus-run-session -- xvfb-run -a env PACKAGE_CLEANER_GTK_TESTS=1 /usr/bin/python3 -m unittest discover -s tests -q
-      - name: Build Debian package without installing it
+      - name: Build current and previous release archives
+        shell: bash
         run: |
+          set -euo pipefail
           /usr/bin/python3 packaging/build_deb.py
-          dpkg-deb --info dist/package-cleaner_*.deb
+          # Intentional fixed upgrade fixture: last published release before 0.2.0.
+          previous="$RUNNER_TEMP/package-cleaner-previous"
+          mkdir -p "$previous"
+          git archive v0.1.4 | tar -x -C "$previous"
+          /usr/bin/python3 "$previous/packaging/build_deb.py"
+      - name: Validate release artifact and isolated install/upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(/usr/bin/python3 -c 'from package_cleaner import __version__; print(__version__)')
+          # Root is only for namespace creation on Ubuntu's restricted CI runner.
+          # dpkg always targets a temporary root; no app is installed on the runner.
+          /usr/bin/python3 tools/validate_deb.py --privileged-isolation "dist/package-cleaner_${version}_all.deb" --upgrade-from "$RUNNER_TEMP/package-cleaner-previous/dist/package-cleaner_0.1.4_all.deb"

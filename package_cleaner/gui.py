@@ -235,11 +235,11 @@ def Window(application, service):
             self.preview_button = Gtk.Button(label='Review Cleanup Queue')
             self.preview_button.connect('clicked', lambda _: self.perform('Validating the removal queue…', service.validate, self.show_preview))
             queue_actions.pack_start(self.preview_button, False, False, 0)
-            self.remove_button = Gtk.Button(label='Remove Selected Software')
-            self.remove_button.set_tooltip_text('Validate and Review the Queue Before Confirming Removal')
+            self.remove_button = Gtk.Button(label='Remove Selected Software…')
+            self.remove_button.set_tooltip_text('Review and Confirm Removal')
             self.remove_button.connect('clicked', self.start_cleanup)
             queue_actions.pack_start(self.remove_button, False, False, 0)
-            self.clear_button = Gtk.Button(label='Clear Queue')
+            self.clear_button = Gtk.Button(label='Clear Queue…')
             self.clear_button.connect('clicked', self.clear_selection)
             queue_actions.pack_start(self.clear_button, False, False, 0)
             footer.pack_start(queue_actions, False, False, 0)
@@ -316,7 +316,7 @@ def Window(application, service):
             self.cancel_button.set_sensitive(can_cancel)
             self.progress_area.show()
             self.cancel_button.set_visible(can_cancel)
-            self.cancel_button.set_tooltip_text('Request cancellation; completed removals cannot be rolled back' if execution else 'Cancel Current Check')
+            self.cancel_button.set_tooltip_text('Completed removals cannot be undone.' if execution else 'Cancel Current Check')
             self.category.set_sensitive(False)
             self.about_button.set_sensitive(False)
             self.refresh.set_sensitive(False)
@@ -514,7 +514,7 @@ def Window(application, service):
                     label = Gtk.Label(label=content, xalign=0, wrap=True, width_chars=1, max_width_chars=65)
                     label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
                     if 'Last use: ' in content:
-                        label.set_tooltip_text('Dates come from recorded application requests, which may be automated and may not be the latest activity. File access alone does not establish use. See Details for evidence.')
+                        label.set_tooltip_text('Recorded activity may be automated. See Details for evidence.')
                     text.pack_start(label, False, False, 0)
                 if self.view_category() == 'advanced' and item.component_assessment:
                     text.pack_start(Gtk.Label(label=item.component_assessment.classification.value.title(), xalign=0), False, False, 0)
@@ -527,7 +527,7 @@ def Window(application, service):
                     decorate_button(button, {'Details': 'details', 'Keep Permanently': 'keep', 'Queue Removal': 'queue'}[label])
                     if label == 'Queue Removal':
                         button.set_sensitive(not item.protected)
-                        button.set_tooltip_text('Save your intention to remove this application. Review Cleanup Queue validates the proposed transaction; queuing never authorizes execution.')
+                        button.set_tooltip_text('Queue only; removal requires confirmation.')
                     button.connect('clicked', callback)
                     actions.pack_start(button, False, False, 0)
                 text.pack_start(actions, False, False, 0)
@@ -743,7 +743,10 @@ def Window(application, service):
 
         def clear_selection(self, *_):
             dialog = Gtk.MessageDialog(transient_for=self, modal=True, message_type=Gtk.MessageType.QUESTION,
-                                       buttons=Gtk.ButtonsType.OK_CANCEL, text='Clear your removal queue?')
+                                       buttons=Gtk.ButtonsType.NONE, text='Clear your removal queue?')
+            dialog.add_button('Cancel', Gtk.ResponseType.CANCEL)
+            dialog.add_button('Clear Queue', Gtk.ResponseType.OK)
+            dialog.set_default_response(Gtk.ResponseType.CANCEL)
             response = dialog.run()
             dialog.destroy()
             if response == Gtk.ResponseType.OK:

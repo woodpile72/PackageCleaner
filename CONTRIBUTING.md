@@ -13,6 +13,9 @@ Run `./package-cleaner --help` for supported CLI options and `./package-cleaner 
 PACKAGE_CLEANER_GTK_TESTS=1 /usr/bin/python3 -m unittest discover -s tests -q
 ```
 
+Packaging tests also require dpkg-deb and appstreamcli. Full artifact validation
+requires lintian and bubblewrap; virtual-display tests use Xvfb and D-Bus.
+
 The second command needs a desktop display. Native tests use mocks for execution. Optional Flatpak-binding tests skip when the system API is unavailable. CI uses Ubuntu 24.04, system Python and an isolated virtual display; it never authorizes real cleanup.
 
 Use temporary preferences, queues and evidence directories. Mock privileged launchers and libflatpak transaction execution. Never add tests that remove installed software, modify APT flags, reset personal preferences, or depend on a particular user's package inventory. Synthetic log fixtures may include deliberately fake secrets to test redaction; do not replace them with private logs.
@@ -41,15 +44,29 @@ Do not commit `work/`, generated inventories, runtime logs, private configuratio
 
 ## Building the Debian installer
 
-`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.1.4_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
+`/usr/bin/python3 packaging/build_deb.py` builds `dist/package-cleaner_0.2.0_all.deb` using the system `dpkg-deb`; no root privileges, network access or installation is involved. The builder copies an explicit set of source/data files, writes root ownership to the archive, and includes no maintainer scripts. `SOURCE_DATE_EPOCH` can override the timestamp; by default it uses the latest Git commit time. With unchanged input and epoch, repeated builds are identical.
 
-Run `lintian dist/package-cleaner_0.1.4_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded `.deb`; GitHub supplies source archives for the tag.
+Run `lintian dist/package-cleaner_0.2.0_all.deb` if lintian is available, and `dpkg-deb --contents` / `--info` to inspect it. Tests build and extract the archive in temporary directories, never install it. Real installation is a separate explicitly authorized action. Release checksums cover the uploaded .deb and explicit source archives; GitHub also supplies automatic source downloads for the tag.
 
 Generate the public screenshot with `/usr/bin/python3 tools/demo_screenshot.py` in a GTK session. It uses fabricated inventory and blocks execution, never host discovery. When building a source archive without Git history, timestamps fall back to the newest packaging changelog date. Flatpak bindings are recommended, not mandatory; missing Flatpak support leaves APT discovery available.
 
-`tools/check_deb_isolated.py dist/package-cleaner_0.1.4_all.deb` is an opt-in local packaging check requiring user namespaces and bubblewrap. It never modifies the host package database. It uses `--force-depends` in an otherwise empty temporary dpkg root, then read-only host runtime mounts; dependency metadata must also be checked with APT simulation. Its live preview targets an already installed Package Cleaner. It is not part of CI and is not a substitute for a fresh Mint VM trial.
+Run tools/validate_deb.py with the current .deb and --upgrade-from pointing to
+the previous release .deb for the same validation used by CI: strict lintian,
+offline AppStream validation, exact file/ownership/mode/version checks, a
+byte-identical rebuild, SHA-256 generation and verification, and both fresh
+installation and upgrade checks.
 
-To check an upgrade in the same disposable environment, add
-`--upgrade-from dist/package-cleaner_0.1.0_all.deb`. This verifies the old version
-was installed, upgrades to the new archive, checks every installed file and
-preserved synthetic preferences, then removes only the temporary installation.
+The lifecycle helper uses user namespaces, bubblewrap and a temporary dpkg root.
+It verifies packaged CLI startup and loads synthetic Keep preferences and saved
+queue intentions through the installed library. The host package database is
+never mounted into the application sandbox. Both saved files must survive the
+upgrade and temporary uninstall unchanged. No removal API is called. The empty
+test dpkg root uses --force-depends; this does not prove dependency resolution on
+a fresh Mint installation and does not replace a full VM trial.
+
+CI builds the previous release from the immutable v0.1.4 source tag as an
+intentional upgrade fixture. Namespace creation runs with elevated privileges
+only on the disposable GitHub runner (Ubuntu restricts unprivileged namespaces).
+Local checks need working user namespaces; they never require installing the
+application on the host. The core version is authoritative; tests compare it
+against packaged metadata and the About page rather than a release literal.

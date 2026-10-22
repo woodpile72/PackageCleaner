@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Erick Woods
 """Native GTK execution workflow with fake privileged/package backends only."""
+from package_cleaner import __version__
 import os
 import threading
 import time
@@ -49,6 +50,17 @@ class GtkExecutionTests(unittest.TestCase):
         self.assertEqual(len(seen),1)
         self.fixture.service.unstage();self.window.update_selection()
         self.assertFalse(self.window.remove_button.get_sensitive())
+    def test_clear_queue_confirmation_has_named_action(self):
+        selected = set(self.fixture.service.selected)
+        def cancel(dialog):
+            self.assertEqual(dialog.get_widget_for_response(self.Gtk.ResponseType.OK).get_label(), 'Clear Queue')
+            self.assertEqual(dialog.get_widget_for_response(self.Gtk.ResponseType.CANCEL).get_label(), 'Cancel')
+            return self.Gtk.ResponseType.CANCEL
+        with patch.object(self.Gtk.MessageDialog, 'run', new=cancel):
+            self.window.clear_selection()
+        self.assertEqual(self.fixture.service.selected, selected)
+        self.fixture.execute_mock.assert_not_called()
+
     def test_success_uses_worker_and_result_dialog_then_refresh(self):
         worker_threads=[];seen=[]
         original=self.fixture.success
@@ -105,7 +117,7 @@ class GtkExecutionTests(unittest.TestCase):
             self.assertEqual(window.get_title(),'Package Cleaner')
             self.assertEqual(window.content_stack.get_visible_child_name(),'about')
             labels=[child.get_text() for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)]
-            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version 0.1.4'])
+            self.assertEqual(labels,['Package Cleaner','© 2026 Erick Woods','Version ' + __version__])
             self.assertEqual(window.about_page.get_halign(),self.Gtk.Align.CENTER)
             self.assertEqual(window.about_page.get_valign(),self.Gtk.Align.CENTER)
             self.assertTrue(all(child.get_xalign()==0.5 for child in window.about_page.get_children() if isinstance(child,self.Gtk.Label)))

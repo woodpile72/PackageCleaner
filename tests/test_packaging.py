@@ -8,6 +8,9 @@ import subprocess
 import tempfile
 import unittest
 import shutil
+import xml.etree.ElementTree as ET
+from unittest.mock import patch
+from tools.validate_deb import validate_contents
 from package_cleaner import __version__
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -53,10 +56,25 @@ class DebianPackageTests(unittest.TestCase):
                 script=root/'usr/bin'/name
                 self.assertEqual(script.stat().st_mode & 0o7777,0o755)
                 self.assertIn('/usr/share/package-cleaner',script.read_text())
-            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__=='0.1.4';assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
-            result=subprocess.run(['/usr/bin/python3','-I','-c',code,str(root/'usr/share/package-cleaner')],capture_output=True,text=True)
+            code="import sys;sys.path.insert(0,sys.argv[1]);from package_cleaner import __version__;from package_cleaner.gui_icons import APPLICATION_ICON;assert __version__==sys.argv[2];assert APPLICATION_ICON.exists();from package_cleaner.__main__ import main;sys.argv=['package-cleaner','--help'];main()"
+            result=subprocess.run(['/usr/bin/python3','-I','-c',code,str(root/'usr/share/package-cleaner'),__version__],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertIn('usage:',result.stdout)
+            validate_contents(deb)
+            wrong=subprocess.run(['/usr/bin/python3','-I','-c',code,str(root/'usr/share/package-cleaner'),'wrong-version'],capture_output=True,text=True)
+            self.assertNotEqual(wrong.returncode,0)
+            self.assertIn('AssertionError',wrong.stderr)
+
+    def test_release_metadata_matches_authoritative_version(self):
+        changelog=(ROOT/'packaging/changelog').read_text()
+        self.assertTrue(changelog.startswith(f'package-cleaner ({__version__})'))
+        release=ET.parse(ROOT/'data/org.packagecleaner.Review.metainfo.xml').find('releases/release')
+        self.assertEqual(release.get('version'),__version__)
+
+    def test_validator_rejects_wrong_package_version(self):
+        with patch('tools.validate_deb.subprocess.check_output',side_effect=['package-cleaner', 'wrong-version']):
+            with self.assertRaisesRegex(AssertionError,'version differs'):
+                validate_contents(Path('unread.deb'))
 
     def test_build_from_source_archive_without_git(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -344,14 +344,15 @@ class GtkTests(ReviewServiceTests):
                             yield from descendants(child)
                 queue = next(w for w in descendants(window) if isinstance(w, Gtk.Button) and w.get_label() == 'Queue Removal')
                 self.assertEqual(queue.get_accessible().get_name(), 'Queue Removal')
-                self.assertIn('never authorizes execution', queue.get_tooltip_text())
+                self.assertEqual(queue.get_tooltip_text(), 'Queue only; removal requires confirmation.')
                 queue.clicked()
                 drain(window)
                 simulation.assert_not_called()
                 self.assertIn('Queued for removal', window.status.get_text())
                 self.assertEqual(window.preview_button.get_label(), 'Review Cleanup Queue')
-                self.assertEqual(window.remove_button.get_label(), 'Remove Selected Software')
-                self.assertEqual(window.clear_button.get_label(), 'Clear Queue')
+                self.assertEqual(window.remove_button.get_label(), 'Remove Selected Software…')
+                self.assertEqual(window.clear_button.get_label(), 'Clear Queue…')
+                self.assertEqual(window.remove_button.get_tooltip_text(), 'Review and Confirm Removal')
                 labels = [w.get_text() for w in descendants(window) if isinstance(w, Gtk.Label)]
                 for title in ('Large Applications', 'Potentially Unused Applications',
                               'Servers and Development Tools', 'Unneeded Supporting Packages',

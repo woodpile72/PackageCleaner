@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — pre-release
+
+- Remove release-version literals from packaging and GTK tests.
+- Correct the Debian archive root directory permissions to 0755.
+- Validate Debian/AppStream metadata, package contents, reproducibility, checksums, and isolated upgrades in CI. Verify both Keep preferences and saved queues survive.
+- Shorten GTK tooltips and add ellipses to removal and queue-clearing actions requiring confirmation. The queue confirmation now says Clear Queue instead of OK.
+- Preserve all APT/Flatpak transaction and execution safeguards.
+
 ## 0.1.4 — pre-release
 
 - Correct singular application counts in GTK queue summaries and execution results.

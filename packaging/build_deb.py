@@ -87,6 +87,7 @@ Description: GTK and CLI software cleanup utility for Linux Mint
             elif path.parent != bindir:
                 path.chmod(0o644)
             os.utime(path, (epoch, epoch))
+        stage.chmod(0o755)
         os.utime(stage, (epoch, epoch))
         target = output / f'package-cleaner_{__version__}_all.deb'
         subprocess.run(['dpkg-deb', '--root-owner-group', '-Zxz', '--build', str(stage), str(target)],
