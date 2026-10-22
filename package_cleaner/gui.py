@@ -177,6 +177,7 @@ def Window(application, service):
             decorate_button(self.refresh, 'refresh')
             self.refresh.connect('clicked', lambda _: self.scan())
             sorting = Gtk.Box(spacing=6)
+            sorting.set_valign(Gtk.Align.CENTER)
             sorting.pack_start(Gtk.Label(label='Sort by'), False, False, 0)
             self.sort_by = Gtk.ComboBoxText()
             self.sort_by.get_accessible().set_name('Sort applications by')

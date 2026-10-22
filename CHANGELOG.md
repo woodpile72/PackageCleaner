@@ -3,6 +3,7 @@
 ## 0.1.3 — pre-release
 
 - Correct GTK capitalization to GNOME HIG: header capitalization for buttons, navigation, and titles; sentence capitalization for field labels and explanatory text.
+- Keep Sort and Refresh controls at their natural height when status text wraps.
 - Preserve all discovery, queue, validation, and execution behavior.
 
 ## 0.1.2 — pre-release

@@ -276,6 +276,7 @@ class GtkTests(ReviewServiceTests):
                     self.assertTrue(window.footer.get_mapped())
                     self.assertGreater(window.application_scroll.get_allocated_height(),200)
                     self.assertLess(window.search.get_allocated_width(),260)
+                    self.assertEqual(window.refresh.get_parent().get_valign(), Gtk.Align.CENTER)
                     list_bottom = window.application_scroll.translate_coordinates(window,0,window.application_scroll.get_allocated_height())[1]
                     footer_top = window.footer.translate_coordinates(window,0,0)[1]
                     self.assertLessEqual(list_bottom,footer_top)
