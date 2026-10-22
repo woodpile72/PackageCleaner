@@ -225,6 +225,7 @@ class GtkTests(ReviewServiceTests):
             try:
                 drain(window)
                 self.assertEqual(len(window.rows.get_children()),1)
+                self.assertEqual(window.selection_label.get_text(), '0 applications queued for removal')
                 before = discover.call_count
                 window.source.set_active_id('flatpak')
                 self.assertEqual(len(window.rows.get_children()),0)
@@ -356,7 +357,7 @@ class GtkTests(ReviewServiceTests):
                               'Servers and Development Tools', 'Unneeded Supporting Packages',
                               'System Tools and Background Components', 'Sort by'):
                     self.assertIn(title, labels)
-                self.assertIn('applications queued for removal', window.selection_label.get_text())
+                self.assertEqual(window.selection_label.get_text(), '1 application queued for removal')
                 self.assertEqual(window.search.get_placeholder_text(), 'Search applications')
                 window.preview_button.clicked()
                 drain(window)

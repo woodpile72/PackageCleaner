@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — pre-release
+
+- Correct singular application counts in GTK queue summaries and execution results.
+- Preserve all cleanup and safety behavior.
+
 ## 0.1.3 — pre-release
 
 - Correct GTK capitalization to GNOME HIG: header capitalization for buttons, navigation, and titles; sentence capitalization for field labels and explanatory text.

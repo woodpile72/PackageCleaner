@@ -299,7 +299,9 @@ def Window(application, service):
             self.executor.shutdown(wait=False, cancel_futures=True)
 
         def update_selection(self):
-            self.selection_label.set_text(f'{len(service.selected)} applications queued for removal')
+            count = len(service.selected)
+            noun = 'application' if count == 1 else 'applications'
+            self.selection_label.set_text(f'{count} {noun} queued for removal')
             self.preview_button.set_sensitive(bool(service.selected) and not self.busy)
             self.clear_button.set_sensitive(bool(service.selected) and not self.busy)
             self.remove_button.set_sensitive(bool(service.selected) and not self.busy and
@@ -715,7 +717,9 @@ def Window(application, service):
                 if r.get('error'):
                     lines.append(str(r['error']).splitlines()[0][:180])
                 technical.append('Log: ' + r.get('log_directory','Unavailable') + '\n' + str(r.get('error') or '') + '\nObserved removals:\n' + '\n'.join(removed))
-            lines.append(f'{len(service.selected)} applications remain in the removal queue.')
+            count = len(service.selected)
+            subject = 'application remains' if count == 1 else 'applications remain'
+            lines.append(f'{count} {subject} in the removal queue.')
             dialog = Gtk.Dialog(title=title, transient_for=self, modal=True)
             dialog.set_default_size(640, 460)
             dialog.add_button('Close', Gtk.ResponseType.CLOSE)
