@@ -48,3 +48,8 @@ Run `lintian dist/package-cleaner_0.1.1_all.deb` if lintian is available, and `d
 Generate the public screenshot with `/usr/bin/python3 tools/demo_screenshot.py` in a GTK session. It uses fabricated inventory and blocks execution, never host discovery. When building a source archive without Git history, timestamps fall back to the newest packaging changelog date. Flatpak bindings are recommended, not mandatory; missing Flatpak support leaves APT discovery available.
 
 `tools/check_deb_isolated.py dist/package-cleaner_0.1.1_all.deb` is an opt-in local packaging check requiring user namespaces and bubblewrap. It never modifies the host package database. It uses `--force-depends` in an otherwise empty temporary dpkg root, then read-only host runtime mounts; dependency metadata must also be checked with APT simulation. Its live preview targets an already installed Package Cleaner. It is not part of CI and is not a substitute for a fresh Mint VM trial.
+
+To check an upgrade in the same disposable environment, add
+`--upgrade-from dist/package-cleaner_0.1.0_all.deb`. This verifies the old version
+was installed, upgrades to the new archive, checks every installed file and
+preserved synthetic preferences, then removes only the temporary installation.

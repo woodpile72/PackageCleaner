@@ -24,13 +24,31 @@ def run(args, **kwargs):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('deb',type=Path)
+    parser.add_argument('--upgrade-from',type=Path,help='Install this previous archive first, then upgrade')
     args=parser.parse_args()
     deb=args.deb.resolve()
     before=Path('/var/lib/dpkg/status').read_bytes()
     with tempfile.TemporaryDirectory(prefix='package-cleaner-isolated-') as tmp:
         root=Path(tmp)/'root';root.mkdir()
         namespace=['unshare','--user','--map-root-user','--mount','--pid','--fork']
+        preferences=root/'home/demo/.config/package-cleaner/preferences.json'
+        preferences.parent.mkdir(parents=True)
+        preferences.write_text('{"version": 1, "kept": ["apt:system/demo"]}\n')
+        saved=preferences.read_bytes()
+        if args.upgrade_from:
+            run(namespace+['dpkg','--root='+str(root),'--force-depends','--install',str(args.upgrade_from.resolve())])
+            old_version=run(['dpkg-deb','-f',str(args.upgrade_from.resolve()),'Version']).strip()
+            assert 'Version: '+old_version in (root/'var/lib/dpkg/status').read_text()
         run(namespace+['dpkg','--root='+str(root),'--force-depends','--install',str(deb)])
+        new_version=run(['dpkg-deb','-f',str(deb),'Version']).strip()
+        assert 'Version: '+new_version in (root/'var/lib/dpkg/status').read_text()
+        assert preferences.read_bytes()==saved
+        expected=Path(tmp)/'expected'
+        run(['dpkg-deb','-x',str(deb),str(expected)])
+        for file in expected.rglob('*'):
+            if file.is_file():
+                assert (root/file.relative_to(expected)).read_bytes()==file.read_bytes(),file
+        if args.upgrade_from:print('Upgrade:',old_version,'->',new_version,'; all archive files and saved preferences verified')
         status=(root/'var/lib/dpkg/status').read_text()
         assert 'Status: install ok installed' in status
         app=root/'usr/share/package-cleaner'
@@ -45,6 +63,7 @@ def main():
         code="import sys;sys.path.insert(0,'/usr/share/package-cleaner');from package_cleaner.core.providers import inventory,preview;ps,w=inventory();n=next(n for n,p in ps.items() if p.provider=='apt' and p.base=='package-cleaner');p=preview([n],ps);assert not p.blocked;assert n in p.removed;assert not any(ps[x].protected for x in p.removed);print('Discovery:',len(ps),'packages; explicit preview validated with protected orphans excluded')"
         print(run(sandbox+['/usr/bin/python3','-I','-c',code]).strip())
         run(namespace+['dpkg','--root='+str(root),'--remove','package-cleaner'])
+        assert preferences.read_bytes()==saved
         assert not (root/'usr/bin/package-cleaner').exists()
         assert not (root/'usr/share/package-cleaner/package_cleaner/gui.py').exists()
     assert Path('/var/lib/dpkg/status').read_bytes()==before
