@@ -9,6 +9,7 @@ read-only runtime libraries/tools. No removal API or host inventory is used.
 """
 import argparse
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile
@@ -29,6 +30,15 @@ def main():
     deb=args.deb.resolve()
     before=Path('/var/lib/dpkg/status').read_bytes()
     with tempfile.TemporaryDirectory(prefix='package-cleaner-isolated-') as tmp:
+        # A root-mapped user namespace cannot traverse another user's private
+        # checkout. Copy inputs before entering it; never relax host permissions.
+        original_deb=deb
+        deb=Path(tmp)/'current.deb'
+        shutil.copyfile(original_deb,deb)
+        previous=None
+        if args.upgrade_from:
+            previous=Path(tmp)/'previous.deb'
+            shutil.copyfile(args.upgrade_from.resolve(),previous)
         root=Path(tmp)/'root';root.mkdir()
         namespace=['unshare','--user','--map-root-user','--mount','--pid','--fork']
         preferences=root/'home/demo/.config/package-cleaner/preferences.json'
@@ -39,8 +49,8 @@ def main():
         queue.write_text(json.dumps(['apt:system/queued-demo:amd64'])+'\n')
         saved={preferences:preferences.read_bytes(), queue:queue.read_bytes()}
         if args.upgrade_from:
-            run(namespace+['dpkg','--root='+str(root),'--force-depends','--install',str(args.upgrade_from.resolve())])
-            old_version=run(['dpkg-deb','-f',str(args.upgrade_from.resolve()),'Version']).strip()
+            run(namespace+['dpkg','--root='+str(root),'--force-depends','--install',str(previous)])
+            old_version=run(['dpkg-deb','-f',str(previous),'Version']).strip()
             assert 'Version: '+old_version in (root/'var/lib/dpkg/status').read_text()
         run(namespace+['dpkg','--root='+str(root),'--force-depends','--install',str(deb)])
         new_version=run(['dpkg-deb','-f',str(deb),'Version']).strip()
